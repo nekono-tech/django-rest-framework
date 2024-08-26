@@ -8,3 +8,21 @@ services:
       - ./backend:/app:cached
     ports:
       - "8000:8000"
+    depends_on:
+      - db
+  db:
+    build:
+      context: ./mysql
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - "3306:3306"
+    env_file:
+      - .env
+    volumes:
+      - ./mysql/data:/var/lib/mysql
+      - ./mysql/my.cnf:/etc/mysql/conf.d/my.cnf
+      - ./mysql/init.sql:/docker-entrypoint-initdb.d/init.sql
+networks:
+  default:
+    driver: bridge
