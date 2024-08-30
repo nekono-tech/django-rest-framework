@@ -138,3 +138,6 @@ REST_FRAMEWORK = {
 # CORS settings
 CORS_ALLOWED_ORIGINS = os.getenv('CORS_ALLOWED_ORIGINS', '').split(',')
 CORS_ALLOW_CREDENTIALS = True
+
+# YouTube API settings
+YOUTUBE_API_KEY = os.getenv('YOUTUBE_API_KEY', '')
