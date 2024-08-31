@@ -1,9 +1,14 @@
+import datetime
 from django.core.management.base import BaseCommand
+from django.utils import timezone
 from googleapiclient.discovery import build
 from config import settings
+from videos.models import Video
 
 
 class Command(BaseCommand):
+    help = '指定されたYouTubeチャンネルから動画を取得して保存する'
+
     def add_arguments(self, parser):
         parser.add_argument(
             '--id',
@@ -11,7 +16,6 @@ class Command(BaseCommand):
             required=True,
             help='YouTubeのチャンネルID（例: UCXXXXXXXXXXXX）'
         )
-
         parser.add_argument(
             '--num',
             type=int,
@@ -24,65 +28,89 @@ class Command(BaseCommand):
         youtube = build('youtube', 'v3', developerKey=api_key)
 
         channel_id = options['id']
-        loop_num = options.get('num')
+        max_iterations = options.get('num')
 
-        uploads_playlist_id = self.get_uploads_playlist_id(youtube, channel_id)
-        self.fetch_and_write_videos(youtube, uploads_playlist_id, loop_num)
-
-        print("全ての動画の取得が完了しました。")
+        try:
+            uploads_playlist_id = self.get_uploads_playlist_id(youtube, channel_id)
+            self.retrieve_and_store_videos(youtube, uploads_playlist_id, max_iterations)
+            self.stdout.write(self.style.SUCCESS("全ての動画の取得が完了しました"))
+        except Exception as e:
+            self.stderr.write(self.style.ERROR(f"エラーが発生しました: {e}"))
 
     def get_uploads_playlist_id(self, youtube, channel_id):
         """
         指定されたチャンネルIDからアップロードプレイリストIDを取得する
         """
-        channel_response = youtube.channels().list(
+        response = youtube.channels().list(
             part='contentDetails',
             id=channel_id
         ).execute()
 
-        # アップロードプレイリストIDを取得
-        uploads_playlist_id = channel_response['items'][0]['contentDetails']['relatedPlaylists']['uploads']
-        return uploads_playlist_id
+        return response['items'][0]['contentDetails']['relatedPlaylists']['uploads']
 
-    def fetch_and_write_videos(self, youtube, uploads_playlist_id, loop_num):
+    def retrieve_and_store_videos(self, youtube, playlist_id, max_iterations=None):
         """
-        プレイリストIDを使って動画を取得し、ファイルに書き込む
+        プレイリストから動画を取得しデータベースに保存する
         """
         next_page_token = None
+        iteration_count = 0
 
-        with open('video_data.txt', 'w', encoding='utf-8') as file:
-            if loop_num:
-                for _ in range(loop_num):
-                    next_page_token = self.fetch_videos(youtube, uploads_playlist_id, next_page_token, file)
-                    if not next_page_token:
-                        break
-            else:
-                while True:
-                    next_page_token = self.fetch_videos(youtube, uploads_playlist_id, next_page_token, file)
-                    if not next_page_token:
-                        break
+        while True:
+            videos, next_page_token = self._fetch_videos(youtube, playlist_id, next_page_token)
 
-    def fetch_videos(self, youtube, playlist_id, page_token, file):
+            for item in videos:
+                self._save_video_item_if_not_exists(item)
+
+            iteration_count += 1
+
+            # 次のページがない場合、または指定された反復回数に達した場合は終了
+            if not next_page_token or (max_iterations and iteration_count >= max_iterations):
+                break
+
+    def _fetch_videos(self, youtube, playlist_id, page_token):
         """
-        動画を取得し、次のページトークンを返す
+        YouTube APIから動画を取得する
         """
-        playlist_request = youtube.playlistItems().list(
+        request = youtube.playlistItems().list(
             part='snippet',
             playlistId=playlist_id,
             maxResults=50,
             pageToken=page_token
         )
-        playlist_response = playlist_request.execute()
+        response = request.execute()
 
-        for item in playlist_response.get('items', []):
-            video_id = item['snippet']['resourceId']['videoId']
-            title = item['snippet']['title']
-            published_at = item['snippet']['publishedAt']
-            if video_id:
-                file.write(f"{video_id}, {title}, {published_at}\n")
+        return response.get('items', []), response.get('nextPageToken')
 
-        new_page_token = playlist_response.get('nextPageToken')
-        if not new_page_token or new_page_token == page_token:
-            return None
+    def _save_video_item_if_not_exists(self, item):
+        """
+        取得した動画情報をデータベースに保存する
+        """
+        snippet = item['snippet']
+        video_id = snippet['resourceId']['videoId']
 
-        return new_page_token
+        if not Video.objects.filter(video_id=video_id).exists():
+            published_at = self._parse_published_at(snippet['publishedAt'])
+
+            Video.objects.create(
+                video_id=video_id,
+                title=snippet['title'],
+                description=snippet['description'],
+                published_at=published_at,
+                thumbnail_default_url=snippet['thumbnails'].get('default', {}).get('url'),
+                thumbnail_medium_url=snippet['thumbnails'].get('medium', {}).get('url'),
+                thumbnail_standard_url=snippet['thumbnails'].get('standard', {}).get('url'),
+                thumbnail_high_url=snippet['thumbnails'].get('high', {}).get('url'),
+                thumbnail_maxres_url=snippet['thumbnails'].get('maxres', {}).get('url')
+            )
+        else:
+            self.stdout.write(self.style.WARNING(f"Video with ID {video_id} already exists. Skipping."))
+
+    def _parse_published_at(self, published_at):
+        """
+        published_at を解析し、適切なタイムゾーンに変換する
+
+        published_at: 例) 2024-01-01T12:34:56Z
+        """
+        utc_time = datetime.datetime.strptime(published_at, "%Y-%m-%dT%H:%M:%SZ")
+        aware_utc_time = timezone.make_aware(utc_time, datetime.timezone.utc)
+        return timezone.localtime(aware_utc_time)
