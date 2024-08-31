@@ -17,7 +17,12 @@
     </div>
 
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
-      <div v-for="video in videos.results" :key="video.video_id" class="flex flex-row bg-white overflow-hidden">
+      <a
+        v-for="video in videos.results"
+        :key="video.video_id"
+        :href="`/videos/${video.video_id}/`"
+        class="flex flex-row bg-white overflow-hidden hover:bg-gray-300 transition-colors duration-100"
+      >
         <div class="w-1/2 flex flex-col p-2">
           <img
             :src="video.thumbnail_high_url"
@@ -32,7 +37,7 @@
             <p class="text-gray-700 text-xs">{{ truncateText(video.description, 60) }}</p>
           </client-only>
         </div>
-      </div>
+      </a>
     </div>
 
     <pagenation
