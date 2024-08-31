@@ -27,7 +27,7 @@
           <img
             :src="video.thumbnail_high_url"
             alt="Thumbnail"
-            class="w-full aspect-w-16 aspect-h-9 object-cover"
+            class="w-full aspect-video object-cover"
           />
           <p class="text-xs text-gray-500 mt-1">公開日時: {{ video.published_at }}</p>
         </div>
