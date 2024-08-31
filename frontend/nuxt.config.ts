@@ -5,4 +5,7 @@ export default defineNuxtConfig({
   plugins: [
       '~/plugins/api.js',
   ],
+  modules: [
+    '@nuxtjs/tailwindcss'
+  ],
 })
