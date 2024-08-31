@@ -33,7 +33,6 @@
 
 <script setup>
 const { $api } = useNuxtApp()
-const router = useRouter()
 const route = useRoute()
 
 const videos = ref({
@@ -72,7 +71,7 @@ watch(
 const nextPage = async () => {
   if (videos.value.next) {
     currentPage.value++
-    router.push({
+    await navigateTo({
       query: {
         ...route.query,
         page: currentPage.value,
@@ -85,7 +84,7 @@ const nextPage = async () => {
 const prevPage = async () => {
   if (videos.value.previous) {
     currentPage.value--
-    router.push({
+    await navigateTo({
       query: {
         ...route.query,
         page: currentPage.value,
@@ -97,7 +96,7 @@ const prevPage = async () => {
 
 const goToPage = async (page) => {
   currentPage.value = page
-  router.push({
+  await navigateTo({
     query: {
       ...route.query,
       page: currentPage.value,
