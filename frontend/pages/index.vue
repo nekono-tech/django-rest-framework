@@ -7,7 +7,7 @@
 <script setup>
 const { $api } = useNuxtApp()
 const { data, error } = useAsyncData('videos', async () => {
-  const response = await $api('videos/')
+  const response = await $api.get('videos/')
   console.log(response)
   return response
 })
@@ -17,7 +17,7 @@ if (error.value) {
 }
 
 const fetch = async () => {
-  const response = await $api('videos/')
+  const response = await $api.get('videos/')
   console.log(response)
 }
 </script>
