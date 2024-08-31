@@ -31,3 +31,10 @@ class IndexView(APIView):
         paginated_videos = paginator.paginate_queryset(videos, request, view=self)
         serializer = VideoSerializer(paginated_videos, many=True)
         return paginator.get_paginated_response(serializer.data)
+
+
+class DetailView(APIView):
+    def get(self, request, video_id):
+        video = Video.objects.get(video_id=video_id)
+        serializer = VideoSerializer(video)
+        return Response(serializer.data)
