@@ -49,7 +49,12 @@ const pageSize = ref(parseInt(route.query.page_size) || 16)
 const totalPages = computed(() => Math.ceil(videos.value.count / pageSize.value))
 
 const fetchVideos = async (page = 1) => {
-  videos.value = await $api.get(`videos/?page=${page}&page_size=${pageSize.value}`)
+  videos.value = await $api.get('videos/', {
+    params: {
+      page: page,
+      page_size: pageSize.value
+    }
+  })
 }
 await fetchVideos(currentPage.value)
 
@@ -63,7 +68,13 @@ watch(() => route.query.page, (newPage) => {
 const nextPage = async () => {
   if (videos.value.next) {
     currentPage.value++
-    router.push({query: {...route.query, page: currentPage.value}})  // URLを更新
+    router.push({
+      query: {
+        ...route.query,
+        page: currentPage.value,
+        page_size: pageSize.value
+      }
+    })
     await fetchVideos(currentPage.value)
   }
 }
@@ -71,14 +82,26 @@ const nextPage = async () => {
 const prevPage = async () => {
   if (videos.value.previous) {
     currentPage.value--
-    router.push({query: {...route.query, page: currentPage.value}})  // URLを更新
+    router.push({
+      query: {
+        ...route.query,
+        page: currentPage.value,
+        page_size: pageSize.value
+      }
+    })
     await fetchVideos(currentPage.value)
   }
 }
 
 const goToPage = async (page) => {
   currentPage.value = page
-  router.push({query: {...route.query, page: currentPage.value}})
+  router.push({
+    query: {
+      ...route.query,
+      page: currentPage.value,
+      page_size: pageSize.value
+    }
+  })
   await fetchVideos(currentPage.value)
 }
 
