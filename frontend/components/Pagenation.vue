@@ -4,6 +4,7 @@
     <button v-for="page in paginationPages"
       :key="page"
       @click="goToPage(page)"
+      :disabled="page === '...'"
       :class="['px-4 py-2 rounded', { 'bg-blue-500 text-white': currentPage === page, 'bg-gray-300': currentPage !== page }]"
     >
       {{ page }}
