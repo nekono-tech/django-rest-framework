@@ -56,14 +56,18 @@ const fetchVideos = async (page = 1) => {
     }
   })
 }
-await fetchVideos(currentPage.value)
 
-watch(() => route.query.page, (newPage) => {
-  if (newPage) {
-    currentPage.value = parseInt(newPage)
+onBeforeMount(() => {
+  fetchVideos(currentPage.value)
+})
+
+watch(
+  () => route.fullPath,  // ルートが変更されるたびに実行
+  () => { // 実行される内容
+    currentPage.value = parseInt(route.query.page) || 1
     fetchVideos(currentPage.value)
   }
-})
+)
 
 const nextPage = async () => {
   if (videos.value.next) {
