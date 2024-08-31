@@ -79,7 +79,6 @@ const nextPage = async () => {
         page_size: pageSize.value
       }
     })
-    await fetchVideos(currentPage.value)
   }
 }
 
@@ -93,7 +92,6 @@ const prevPage = async () => {
         page_size: pageSize.value
       }
     })
-    await fetchVideos(currentPage.value)
   }
 }
 
@@ -106,7 +104,6 @@ const goToPage = async (page) => {
       page_size: pageSize.value
     }
   })
-  await fetchVideos(currentPage.value)
 }
 
 const truncateText = (text, maxLength) => {
