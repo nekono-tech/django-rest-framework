@@ -12,7 +12,7 @@
         </div>
         <div class="md:w-1/2 p-4">
           <h3 class="text-lg font-bold mb-2">{{ video.title }}</h3>
-          <p class="text-gray-700 text-sm">{{ video.description }}</p>
+          <p class="text-gray-700 text-sm">{{ truncateText(video.description, 100) }}</p>
         </div>
       </div>
     </div>
@@ -24,4 +24,11 @@ const { $api } = useNuxtApp()
 const { data: videos } = await useAsyncData('videos', () =>
     $api.get('videos/')
 )
+
+const truncateText = (text, maxLength) => {
+  if (text.length > maxLength) {
+    return text.substring(0, maxLength) + '...'
+  }
+  return text
+}
 </script>
