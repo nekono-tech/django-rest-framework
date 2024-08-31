@@ -2,7 +2,7 @@
   <div class="container mx-auto py-8 px-4">
     <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
       <div v-for="video in videos" :key="video.video_id" class="flex flex-col md:flex-row bg-white shadow-md rounded-lg overflow-hidden">
-        <div class="md:w-1/2">
+        <div class="md:w-1/2 p-4">
           <img
             :src="video.thumbnail_high_url"
             alt="Thumbnail"
