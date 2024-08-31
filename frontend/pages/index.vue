@@ -18,14 +18,113 @@
         </div>
       </div>
     </div>
+
+    <div class="flex justify-center mt-4 space-x-2">
+      <button @click="prevPage" :disabled="!videos.previous" class="px-4 py-2 bg-gray-300 rounded">前へ</button>
+
+      <button
+        v-for="page in paginationPages"
+        :key="page"
+        @click="goToPage(page)"
+        :disabled="page === '...'"
+        :class="['px-4 py-2 rounded', { 'bg-blue-500 text-white': currentPage === page, 'bg-gray-300': currentPage !== page }]"
+        v-if="page !== '...'"
+      >
+        {{ page }}
+      </button>
+      <span v-else class="px-2">...</span>
+
+      <button @click="nextPage" :disabled="!videos.next" class="px-4 py-2 bg-gray-300 rounded">次へ</button>
+    </div>
   </div>
 </template>
 
 <script setup>
 const { $api } = useNuxtApp()
-const { data: videos } = await useAsyncData('videos', () =>
-    $api.get('videos/')
-)
+const router = useRouter()
+const route = useRoute()
+
+const videos = ref({
+  results: [],
+  next: null,
+  previous: null,
+  count: 0
+})
+
+const currentPage = ref(parseInt(route.query.page) || 1)
+const pageSize = ref(parseInt(route.query.page_size) || 16)
+
+const totalPages = computed(() => Math.ceil(videos.value.count / pageSize.value))
+
+const paginationPages = computed(() => {
+  const pages = []
+  const maxPagesToShow = 7
+  const startPage = Math.max(1, currentPage.value - 2)
+  const endPage = Math.min(totalPages.value, currentPage.value + 2)
+
+  if (totalPages.value <= maxPagesToShow) {
+    for (let i = 1; i <= totalPages.value; i++) {
+      pages.push(i)
+    }
+  } else {
+    if (currentPage.value <= 3) {
+      for (let i = 1; i <= 4; i++) {
+        pages.push(i)
+      }
+      pages.push('...')
+      pages.push(totalPages.value)
+    } else if (currentPage.value > 3 && currentPage.value < totalPages.value - 2) {
+      pages.push(1)
+      pages.push('...')
+      for (let i = currentPage.value - 1; i <= currentPage.value + 1; i++) {
+        pages.push(i)
+      }
+      pages.push('...')
+      pages.push(totalPages.value)
+    } else {
+      pages.push(1)
+      pages.push('...')
+      for (let i = totalPages.value - 3; i <= totalPages.value; i++) {
+        pages.push(i)
+      }
+    }
+  }
+  return pages
+})
+
+const fetchVideos = async (page = 1) => {
+  videos.value = await $api.get(`videos/?page=${page}&page_size=${pageSize.value}`)
+}
+await fetchVideos(currentPage.value)
+
+watch(() => route.query.page, (newPage) => {
+  if (newPage) {
+    currentPage.value = parseInt(newPage)
+    fetchVideos(currentPage.value)
+  }
+})
+
+const nextPage = async () => {
+  if (videos.value.next) {
+    currentPage.value++
+    router.push({query: {...route.query, page: currentPage.value}})  // URLを更新
+    await fetchVideos(currentPage.value)
+  }
+}
+
+const prevPage = async () => {
+  if (videos.value.previous) {
+    currentPage.value--
+    router.push({query: {...route.query, page: currentPage.value}})  // URLを更新
+    await fetchVideos(currentPage.value)
+  }
+}
+
+const goToPage = async (page) => {
+  currentPage.value = page
+  router.push({query: {...route.query, page: currentPage.value}})
+  await fetchVideos(currentPage.value)
+}
 
 const truncateText = (text, maxLength) => {
   if (text.length > maxLength) {
