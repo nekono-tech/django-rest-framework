@@ -33,9 +33,9 @@ class Command(BaseCommand):
         try:
             uploads_playlist_id = self.get_uploads_playlist_id(youtube, channel_id)
             self.retrieve_and_store_videos(youtube, uploads_playlist_id, max_iterations)
-            self.stdout.write(self.style.SUCCESS("全ての動画の取得が完了しました"))
+            self.stdout.write(self.style.SUCCESS("Done!"))
         except Exception as e:
-            self.stderr.write(self.style.ERROR(f"エラーが発生しました: {e}"))
+            self.stderr.write(self.style.ERROR(f"Error: {e}"))
 
     def get_uploads_playlist_id(self, youtube, channel_id):
         """
@@ -102,6 +102,7 @@ class Command(BaseCommand):
                 thumbnail_high_url=snippet['thumbnails'].get('high', {}).get('url'),
                 thumbnail_maxres_url=snippet['thumbnails'].get('maxres', {}).get('url')
             )
+            self.stdout.write(self.style.SUCCESS(f"Video with ID {video_id} has been saved"))
         else:
             self.stdout.write(self.style.WARNING(f"Video with ID {video_id} already exists. Skipping."))
 
