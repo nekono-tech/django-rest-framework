@@ -1,8 +1,8 @@
 <template>
   <div class="container mx-auto py-2 px-1">
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
-      <div v-for="video in videos" :key="video.video_id" class="flex flex-col lg:flex-row bg-white overflow-hidden">
-        <div class="w-full lg:w-1/2 flex flex-col p-2">
+      <div v-for="video in videos" :key="video.video_id" class="flex flex-row bg-white overflow-hidden">
+        <div class="w-1/2 flex flex-col p-2">
           <img
             :src="video.thumbnail_high_url"
             alt="Thumbnail"
@@ -10,7 +10,7 @@
           />
           <p class="text-xs text-gray-500 mt-1">投稿日時: {{ video.published_at }}</p>
         </div>
-        <div class="flex flex-col justify-start p-2 w-full lg:w-1/2">
+        <div class="flex flex-col justify-start p-2 w-1/2">
           <h3 class="text-sm font-medium mb-1">{{ video.title }}</h3>
           <client-only>
             <p class="text-gray-700 text-xs">{{ truncateText(video.description, 60) }}</p>
