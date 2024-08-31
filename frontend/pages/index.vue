@@ -63,102 +63,77 @@ const sortOrder = ref(route.query.order || 'desc')
 
 const totalPages = computed(() => Math.ceil(videos.value.count / pageSize.value))
 
-const fetchVideos = async (page = 1) => {
-  videos.value = await $api.get('videos/', {
-    params: {
-      page: page,
-      page_size: pageSize.value,
-      search: searchQuery.value,
-      order: sortOrder.value
+const getQueryParams = (page) => {
+  return {
+    page: page,
+    page_size: pageSize.value,
+    search: searchQuery.value,
+    order: sortOrder.value
+  }
+}
+
+const updateQueryParams = (newParams) => {
+  navigateTo({
+    query: {
+      ...route.query,
+      ...newParams
     }
   })
 }
 
+const fetchVideos = async (page = 1) => {
+  videos.value = await $api.get('videos/', {
+    params: getQueryParams(page)
+  })
+}
+
+const watchRouteChanges = () => {
+  watch(
+    () => route.fullPath,
+    () => {
+      currentPage.value = parseInt(route.query.page) || 1
+      searchQuery.value = route.query.search || ''
+      sortOrder.value = route.query.order || 'desc'
+      fetchVideos(currentPage.value)
+    }
+  )
+}
+
 onBeforeMount(() => {
   fetchVideos(currentPage.value)
+  watchRouteChanges()
 })
-
-watch(
-  () => route.fullPath,  // ルートが変更されるたびに実行
-  () => { // 実行される内容
-    currentPage.value = parseInt(route.query.page) || 1
-    searchQuery.value = route.query.search || ''
-    sortOrder.value = route.query.order || 'desc'
-    fetchVideos(currentPage.value)
-  }
-)
 
 const nextPage = () => {
   if (videos.value.next) {
     currentPage.value++
-    navigateTo({
-      query: {
-        ...route.query,
-        page: currentPage.value,
-        page_size: pageSize.value,
-        search: searchQuery.value,
-        order: sortOrder.value
-      }
-    })
+    updateQueryParams(getQueryParams(currentPage.value))
   }
 }
 
 const prevPage = () => {
   if (videos.value.previous) {
     currentPage.value--
-    navigateTo({
-      query: {
-        ...route.query,
-        page: currentPage.value,
-        page_size: pageSize.value,
-        search: searchQuery.value,
-        order: sortOrder.value
-      }
-    })
+    updateQueryParams(getQueryParams(currentPage.value))
   }
 }
 
 const goToPage = (page) => {
   currentPage.value = page
-  navigateTo({
-    query: {
-      ...route.query,
-      page: currentPage.value,
-      page_size: pageSize.value,
-      search: searchQuery.value,
-      order: sortOrder.value
-    }
-  })
+  updateQueryParams(getQueryParams(currentPage.value))
 }
 
 const searchVideos = () => {
   currentPage.value = 1
-  navigateTo({
-    query: {
-      page: currentPage.value,
-      page_size: pageSize.value,
-      search: searchQuery.value,
-      order: sortOrder.value
-    }
-  })
+  updateQueryParams(getQueryParams(currentPage.value))
 }
 
 const sortVideos = () => {
   currentPage.value = 1
-  navigateTo({
-    query: {
-      page: currentPage.value,
-      page_size: pageSize.value,
-      search: searchQuery.value,
-      order: sortOrder.value
-    }
-  })
+  updateQueryParams(getQueryParams(currentPage.value))
 }
 
 const truncateText = (text, maxLength) => {
-  if (text.length > maxLength) {
-    return text.substring(0, maxLength) + '...'
-  }
-  return text
+  return text.length > maxLength ? text.substring(0, maxLength) + '...' : text
 }
 </script>
