@@ -1,4 +1,15 @@
 services:
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app:cached
+    networks:
+      - default
+
   backend:
     build:
       context: ./backend
@@ -12,6 +23,7 @@ services:
       - .env
     depends_on:
       - db
+
   db:
     build:
       context: ./mysql
@@ -25,6 +37,7 @@ services:
       - ./mysql/data:/var/lib/mysql
       - ./mysql/my.cnf:/etc/mysql/conf.d/my.cnf
       - ./mysql/init.sql:/docker-entrypoint-initdb.d/init.sql
+
 networks:
   default:
     driver: bridge
