@@ -1,7 +1,9 @@
 from django.db import models
 
+from common.models import BaseModel
 
-class Video(models.Model):
+
+class Video(BaseModel):
     video_id = models.CharField(max_length=20, unique=True)
     title = models.CharField(max_length=255)
     description = models.TextField()
