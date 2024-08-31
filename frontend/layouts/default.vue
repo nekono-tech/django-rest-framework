@@ -3,12 +3,12 @@
     <header class="bg-gray-800 text-white py-4 px-8">
       <div class="container mx-auto flex">
         <div class="flex items-center space-x-4">
-          <nuxt-link to="/" class="flex items-center">
+          <a href="/" class="flex items-center">
             <img src="https://placehold.jp/150x150.png" alt="Logo" class="h-8 w-auto" />
-          </nuxt-link>
-          <nuxt-link to="/about" class="text-white hover:text-gray-300">
+          </a>
+          <a href="/about" class="text-white hover:text-gray-300">
             About
-          </nuxt-link>
+          </a>
         </div>
       </div>
     </header>
