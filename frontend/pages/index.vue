@@ -1,17 +1,19 @@
 <template>
   <div class="container mx-auto py-2 px-1">
-    <div class="mb-4 flex justify-between">
-      <input
-        type="text"
-        v-model="searchQuery"
-        placeholder="動画を検索..."
-        class="w-full p-2 border border-gray-300 rounded mr-2"
-        @input="searchVideos"
-      />
-      <select v-model="sortOrder" @change="sortVideos" class="p-2 border border-gray-300 rounded">
-        <option value="desc">公開日時が新しい順</option>
-        <option value="asc">公開日時が古い順</option>
-      </select>
+    <div class="mb-4 mt-4 flex flex-col sm:flex-row justify-center items-center space-y-2 sm:space-y-0 sm:space-x-4">
+      <div class="flex flex-col sm:flex-row max-w-xl w-full">
+        <input
+          type="text"
+          v-model="searchQuery"
+          placeholder="動画を検索..."
+          class="flex-grow p-2 border border-gray-300 rounded-t sm:rounded-l sm:rounded-t-none"
+          @input="searchVideos"
+        />
+        <select v-model="sortOrder" @change="sortVideos" class="p-2 border border-gray-300 rounded-b sm:rounded-r sm:rounded-b-none sm:w-auto">
+          <option value="desc">公開日時が新しい順</option>
+          <option value="asc">公開日時が古い順</option>
+        </select>
+      </div>
     </div>
 
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
