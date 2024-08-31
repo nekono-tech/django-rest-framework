@@ -5,9 +5,9 @@
 </template>
 
 <script setup>
-const url = import.meta.server ? 'http://backend:8888/api/videos/' : '/api/videos/'
+const { $api } = useNuxtApp()
 const { data, error } = useAsyncData('videos', async () => {
-  const response = await $fetch(url)
+  const response = await $api('videos/')
   console.log(response)
   return response
 })
@@ -17,7 +17,7 @@ if (error.value) {
 }
 
 const fetch = async () => {
-  const response = await $fetch(url)
+  const response = await $api('videos/')
   console.log(response)
 }
 </script>
