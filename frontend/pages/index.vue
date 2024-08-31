@@ -1,13 +1,17 @@
 <template>
   <div class="container mx-auto py-2 px-1">
-    <div class="mb-4">
+    <div class="mb-4 flex justify-between">
       <input
         type="text"
         v-model="searchQuery"
         placeholder="動画を検索..."
-        class="w-full p-2 border border-gray-300 rounded"
+        class="w-full p-2 border border-gray-300 rounded mr-2"
         @input="searchVideos"
       />
+      <select v-model="sortOrder" @change="sortVideos" class="p-2 border border-gray-300 rounded">
+        <option value="desc">公開日時が新しい順</option>
+        <option value="asc">公開日時が古い順</option>
+      </select>
     </div>
 
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
@@ -18,7 +22,7 @@
             alt="Thumbnail"
             class="w-full aspect-w-16 aspect-h-9 object-cover"
           />
-          <p class="text-xs text-gray-500 mt-1">投稿日時: {{ video.published_at }}</p>
+          <p class="text-xs text-gray-500 mt-1">公開日時: {{ video.published_at }}</p>
         </div>
         <div class="flex flex-col justify-start p-2 w-1/2">
           <h3 class="text-sm font-medium mb-1">{{ video.title }}</h3>
@@ -55,6 +59,7 @@ const videos = ref({
 const currentPage = ref(parseInt(route.query.page) || 1)
 const pageSize = ref(parseInt(route.query.page_size) || 16)
 const searchQuery = ref(route.query.search || '')
+const sortOrder = ref(route.query.order || 'desc')
 
 const totalPages = computed(() => Math.ceil(videos.value.count / pageSize.value))
 
@@ -63,7 +68,8 @@ const fetchVideos = async (page = 1) => {
     params: {
       page: page,
       page_size: pageSize.value,
-      search: searchQuery.value
+      search: searchQuery.value,
+      order: sortOrder.value
     }
   })
 }
@@ -77,6 +83,7 @@ watch(
   () => { // 実行される内容
     currentPage.value = parseInt(route.query.page) || 1
     searchQuery.value = route.query.search || ''
+    sortOrder.value = route.query.order || 'desc'
     fetchVideos(currentPage.value)
   }
 )
@@ -89,7 +96,8 @@ const nextPage = () => {
         ...route.query,
         page: currentPage.value,
         page_size: pageSize.value,
-        search: searchQuery.value
+        search: searchQuery.value,
+        order: sortOrder.value
       }
     })
   }
@@ -103,7 +111,8 @@ const prevPage = () => {
         ...route.query,
         page: currentPage.value,
         page_size: pageSize.value,
-        search: searchQuery.value
+        search: searchQuery.value,
+        order: sortOrder.value
       }
     })
   }
@@ -116,7 +125,8 @@ const goToPage = (page) => {
       ...route.query,
       page: currentPage.value,
       page_size: pageSize.value,
-      search: searchQuery.value
+      search: searchQuery.value,
+      order: sortOrder.value
     }
   })
 }
@@ -127,7 +137,20 @@ const searchVideos = () => {
     query: {
       page: currentPage.value,
       page_size: pageSize.value,
-      search: searchQuery.value
+      search: searchQuery.value,
+      order: sortOrder.value
+    }
+  })
+}
+
+const sortVideos = () => {
+  currentPage.value = 1
+  navigateTo({
+    query: {
+      page: currentPage.value,
+      page_size: pageSize.value,
+      search: searchQuery.value,
+      order: sortOrder.value
     }
   })
 }
