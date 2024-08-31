@@ -4,7 +4,7 @@
       <div class="container mx-auto flex">
         <div class="flex items-center space-x-4">
           <nuxt-link to="/" class="flex items-center">
-            <img src="https://i.ytimg.com/vi/JtV0PdXyjeE/maxresdefault.jpg" alt="Logo" class="h-8 w-auto" />
+            <img src="https://placehold.jp/150x150.png" alt="Logo" class="h-8 w-auto" />
           </nuxt-link>
           <nuxt-link to="/about" class="text-white hover:text-gray-300">
             About
