@@ -1,5 +1,15 @@
 <template>
   <div class="container mx-auto py-2 px-1">
+    <div class="mb-4">
+      <input
+        type="text"
+        v-model="searchQuery"
+        placeholder="動画を検索..."
+        class="w-full p-2 border border-gray-300 rounded"
+        @input="searchVideos"
+      />
+    </div>
+
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
       <div v-for="video in videos.results" :key="video.video_id" class="flex flex-row bg-white overflow-hidden">
         <div class="w-1/2 flex flex-col p-2">
@@ -44,6 +54,7 @@ const videos = ref({
 
 const currentPage = ref(parseInt(route.query.page) || 1)
 const pageSize = ref(parseInt(route.query.page_size) || 16)
+const searchQuery = ref(route.query.search || '')
 
 const totalPages = computed(() => Math.ceil(videos.value.count / pageSize.value))
 
@@ -51,7 +62,8 @@ const fetchVideos = async (page = 1) => {
   videos.value = await $api.get('videos/', {
     params: {
       page: page,
-      page_size: pageSize.value
+      page_size: pageSize.value,
+      search: searchQuery.value
     }
   })
 }
@@ -64,43 +76,58 @@ watch(
   () => route.fullPath,  // ルートが変更されるたびに実行
   () => { // 実行される内容
     currentPage.value = parseInt(route.query.page) || 1
+    searchQuery.value = route.query.search || ''
     fetchVideos(currentPage.value)
   }
 )
 
-const nextPage = async () => {
+const nextPage = () => {
   if (videos.value.next) {
     currentPage.value++
-    await navigateTo({
+    navigateTo({
       query: {
         ...route.query,
         page: currentPage.value,
-        page_size: pageSize.value
+        page_size: pageSize.value,
+        search: searchQuery.value
       }
     })
   }
 }
 
-const prevPage = async () => {
+const prevPage = () => {
   if (videos.value.previous) {
     currentPage.value--
-    await navigateTo({
+    navigateTo({
       query: {
         ...route.query,
         page: currentPage.value,
-        page_size: pageSize.value
+        page_size: pageSize.value,
+        search: searchQuery.value
       }
     })
   }
 }
 
-const goToPage = async (page) => {
+const goToPage = (page) => {
   currentPage.value = page
-  await navigateTo({
+  navigateTo({
     query: {
       ...route.query,
       page: currentPage.value,
-      page_size: pageSize.value
+      page_size: pageSize.value,
+      search: searchQuery.value
+    }
+  })
+}
+
+const searchVideos = () => {
+  currentPage.value = 1
+  navigateTo({
+    query: {
+      page: currentPage.value,
+      page_size: pageSize.value,
+      search: searchQuery.value
     }
   })
 }
