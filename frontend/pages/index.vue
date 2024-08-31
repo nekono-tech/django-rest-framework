@@ -22,8 +22,8 @@
     <pagenation
       :totalPages="totalPages"
       :currentPage="currentPage"
-      :hasNext="videos.next"
-      :hasPrevious="videos.previous"
+      :hasNext="Boolean(videos.next)"
+      :hasPrevious="Boolean(videos.previous)"
       @nextPage="nextPage"
       @prevPage="prevPage"
       @goToPage="goToPage"

@@ -1,17 +1,13 @@
 <template>
   <div class="flex justify-center mt-4 space-x-2">
     <button @click="$emit('prevPage')" :disabled="!hasPrevious" class="px-4 py-2 bg-gray-300 rounded">前へ</button>
-    <button
-      v-for="page in paginationPages"
+    <button v-for="page in paginationPages"
       :key="page"
       @click="goToPage(page)"
       :class="['px-4 py-2 rounded', { 'bg-blue-500 text-white': currentPage === page, 'bg-gray-300': currentPage !== page }]"
-      v-if="page !== '...'"
-      :disabled="page === '...'"
     >
       {{ page }}
     </button>
-    <span v-else class="px-2">...</span>
 
     <button @click="$emit('nextPage')" :disabled="!hasNext" class="px-4 py-2 bg-gray-300 rounded">次へ</button>
   </div>
