@@ -1,13 +1,18 @@
-from rest_framework.response import Response
-from rest_framework.status import HTTP_200_OK
 from rest_framework.views import APIView
+from rest_framework.pagination import PageNumberPagination
 
 from .models import Video
 from .serializers import VideoSerializer
 
 
+class CustomPageNumberPagination(PageNumberPagination):
+    page_size_query_param = 'page_size'
+    max_page_size = 50
+
 class IndexView(APIView):
     def get(self, request):
         videos = Video.objects.all()
-        serializer = VideoSerializer(videos, many=True)
-        return Response(data=serializer.data, status=HTTP_200_OK)
+        paginator = CustomPageNumberPagination()
+        paginated_videos = paginator.paginate_queryset(videos, request, view=self)
+        serializer = VideoSerializer(paginated_videos, many=True)
+        return paginator.get_paginated_response(serializer.data)

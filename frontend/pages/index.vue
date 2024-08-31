@@ -1,7 +1,7 @@
 <template>
   <div class="container mx-auto py-2 px-1">
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
-      <div v-for="video in videos" :key="video.video_id" class="flex flex-row bg-white overflow-hidden">
+      <div v-for="video in videos.results" :key="video.video_id" class="flex flex-row bg-white overflow-hidden">
         <div class="w-1/2 flex flex-col p-2">
           <img
             :src="video.thumbnail_high_url"
