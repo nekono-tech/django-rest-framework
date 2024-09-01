@@ -9,4 +9,10 @@ export default defineNuxtConfig({
     '@nuxtjs/tailwindcss',
     '@nuxt/eslint'
   ],
+  tailwindcss: {
+    cssPath: '~/assets/css/tailwind.css',
+    exposeConfig: false,
+    injectPosition: 0,
+    viewer: false,
+  },
 })
