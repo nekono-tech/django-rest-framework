@@ -1,0 +1,50 @@
+services:
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    environment:
+      NODE_ENV: production
+    ports:
+      - "3000:3000"
+    networks:
+      - default
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    expose:
+      - "8888"
+    env_file:
+      - .env
+    depends_on:
+      - db
+
+  nginx:
+    build: ./nginx
+    ports:
+      - "80:80"
+    networks:
+      - default
+    depends_on:
+      - frontend
+      - backend
+
+  db:
+    build:
+      context: ./mysql
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - "3306:3306"
+    env_file:
+      - .env
+    volumes:
+      - ./mysql/data:/var/lib/mysql
+      - ./mysql/my.cnf:/etc/mysql/conf.d/my.cnf
+      - ./mysql/init.sql:/docker-entrypoint-initdb.d/init.sql
+
+networks:
+  default:
+    driver: bridge
