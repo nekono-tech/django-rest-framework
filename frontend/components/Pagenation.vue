@@ -1,23 +1,30 @@
 <template>
   <div class="flex justify-center mt-4 space-x-2">
-    <button @click="$emit('prevPage')" :disabled="!hasPrevious" class="px-4 py-2 bg-gray-300 rounded">前へ</button>
-    <button v-for="page in paginationPages"
+    <button :disabled="!hasPrevious" class="px-4 py-2 bg-gray-300 rounded" @click="$emit('prevPage')">前へ</button>
+    <button
+      v-for="page in paginationPages"
       :key="page"
-      @click="goToPage(page)"
       :disabled="page === '...'"
       :class="['px-4 py-2 rounded', { 'bg-blue-500 text-white': currentPage === page, 'bg-gray-300': currentPage !== page }]"
+      @click="goToPage(page)"
     >
       {{ page }}
     </button>
 
-    <button @click="$emit('nextPage')" :disabled="!hasNext" class="px-4 py-2 bg-gray-300 rounded">次へ</button>
+    <button :disabled="!hasNext" class="px-4 py-2 bg-gray-300 rounded" @click="$emit('nextPage')">次へ</button>
   </div>
 </template>
 
 <script setup>
 const props = defineProps({
-  totalPages: Number,
-  currentPage: Number,
+  totalPages: {
+    type: Number,
+    required: true,
+  },
+  currentPage: {
+    type: Number,
+    required: true,
+  },
   hasNext: Boolean,
   hasPrevious: Boolean,
 })

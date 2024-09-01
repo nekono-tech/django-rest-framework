@@ -33,7 +33,7 @@ class ApiClient {
 
   async request(url, options) {
     try {
-        return await this.client(url, options);
+      return await this.client(url, options);
     } catch (error) {
       this.handleError(error);
       throw error;
@@ -45,7 +45,7 @@ class ApiClient {
   }
 }
 
-export default defineNuxtPlugin((nuxtApp) => {
+export default defineNuxtPlugin(() => {
   const baseURL = import.meta.server ? 'http://backend:8888/api/' : '/api/';
   const api = new ApiClient(baseURL);
 

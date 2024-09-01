@@ -3,13 +3,13 @@
     <div class="mb-4 mt-4 flex flex-col sm:flex-row justify-center items-center space-y-2 sm:space-y-0 sm:space-x-4">
       <div class="flex flex-col sm:flex-row max-w-xl w-full">
         <input
-          type="text"
           v-model="searchQuery"
+          type="text"
           placeholder="動画を検索..."
           class="flex-grow p-2 border border-gray-300 rounded-t sm:rounded-l sm:rounded-t-none"
           @input="searchVideos"
-        />
-        <select v-model="sortOrder" @change="sortVideos" class="p-2 border border-gray-300 rounded-b sm:rounded-r sm:rounded-b-none sm:w-auto">
+        >
+        <select v-model="sortOrder" class="p-2 border border-gray-300 rounded-b sm:rounded-r sm:rounded-b-none sm:w-auto" @change="sortVideos">
           <option value="desc">公開日時が新しい順</option>
           <option value="asc">公開日時が古い順</option>
         </select>
@@ -28,7 +28,7 @@
             :src="video.thumbnail_high_url"
             alt="Thumbnail"
             class="w-full aspect-video object-cover"
-          />
+          >
           <p class="text-xs text-gray-500 mt-1">公開日時: {{ video.published_at }}</p>
         </div>
         <div class="flex flex-col justify-start p-2 w-1/2">
@@ -41,13 +41,13 @@
     </div>
 
     <pagenation
-      :totalPages="totalPages"
-      :currentPage="currentPage"
-      :hasNext="Boolean(videos.next)"
-      :hasPrevious="Boolean(videos.previous)"
-      @nextPage="nextPage"
-      @prevPage="prevPage"
-      @goToPage="goToPage"
+      :total-pages="totalPages"
+      :current-page="currentPage"
+      :has-next="Boolean(videos.next)"
+      :has-previous="Boolean(videos.previous)"
+      @next-page="nextPage"
+      @prev-page="prevPage"
+      @go-to-page="goToPage"
     />
   </div>
 </template>

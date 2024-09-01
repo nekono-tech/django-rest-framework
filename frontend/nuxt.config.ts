@@ -3,9 +3,10 @@ export default defineNuxtConfig({
   compatibilityDate: '2024-04-03',
   devtools: { enabled: true },
   plugins: [
-      '~/plugins/api.js',
+    '~/plugins/api.js',
   ],
   modules: [
-    '@nuxtjs/tailwindcss'
+    '@nuxtjs/tailwindcss',
+    '@nuxt/eslint'
   ],
 })

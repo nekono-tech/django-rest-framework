@@ -6,7 +6,7 @@
           :src="`https://www.youtube.com/embed/${video.video_id}`"
           allowfullscreen
           class="w-full h-full"
-        ></iframe>
+        />
       </div>
     </div>
     <div class="mt-4">
