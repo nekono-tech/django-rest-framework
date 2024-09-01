@@ -25,6 +25,11 @@ services:
     build: ./nginx
     ports:
       - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/default.prod.conf:/etc/nginx/conf.d/default.conf
+      - ./nginx/certbot/conf:/etc/letsencrypt  # 証明書ファイルのパスをマウント
+      - ./nginx/certbot/www:/var/www/certbot   # certbotのチャレンジ用
     networks:
       - default
     depends_on:
