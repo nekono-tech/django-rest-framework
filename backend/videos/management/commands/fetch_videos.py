@@ -4,6 +4,8 @@ from django.utils import timezone
 from googleapiclient.discovery import build
 from config import settings
 from videos.models import Video
+from youtube.models import Youtube
+from django.core.exceptions import ObjectDoesNotExist
 
 
 class Command(BaseCommand):
@@ -25,15 +27,19 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         api_key = settings.YOUTUBE_API_KEY
-        youtube = build('youtube', 'v3', developerKey=api_key)
+        youtube_api = build('youtube', 'v3', developerKey=api_key)
 
         channel_id = options['id']
         max_iterations = options.get('num')
 
         try:
-            uploads_playlist_id = self.get_uploads_playlist_id(youtube, channel_id)
-            self.retrieve_and_store_videos(youtube, uploads_playlist_id, max_iterations)
+            youtube = Youtube.objects.get(channel_id=channel_id)
+            uploads_playlist_id = self.get_uploads_playlist_id(youtube_api, channel_id)
+            self.retrieve_and_store_videos(youtube_api, uploads_playlist_id, youtube, max_iterations)
             self.stdout.write(self.style.SUCCESS("Done!"))
+
+        except ObjectDoesNotExist:
+            self.stderr.write(self.style.ERROR(f"Error: Youtube model with channel ID '{channel_id}' does not exist."))
         except Exception as e:
             self.stderr.write(self.style.ERROR(f"Error: {e}"))
 
@@ -48,7 +54,7 @@ class Command(BaseCommand):
 
         return response['items'][0]['contentDetails']['relatedPlaylists']['uploads']
 
-    def retrieve_and_store_videos(self, youtube, playlist_id, max_iterations=None):
+    def retrieve_and_store_videos(self, youtube_api, playlist_id, youtube, max_iterations=None):
         """
         プレイリストから動画を取得しデータベースに保存する
         """
@@ -56,10 +62,10 @@ class Command(BaseCommand):
         iteration_count = 0
 
         while True:
-            videos, next_page_token = self._fetch_videos(youtube, playlist_id, next_page_token)
+            videos, next_page_token = self._fetch_videos(youtube_api, playlist_id, next_page_token)
 
             for item in videos:
-                self._save_video_item_if_not_exists(item)
+                self._save_video_item_if_not_exists(item, youtube)
 
             iteration_count += 1
 
@@ -67,11 +73,11 @@ class Command(BaseCommand):
             if not next_page_token or (max_iterations and iteration_count >= max_iterations):
                 break
 
-    def _fetch_videos(self, youtube, playlist_id, page_token):
+    def _fetch_videos(self, youtube_api, playlist_id, page_token):
         """
         YouTube APIから動画を取得する
         """
-        request = youtube.playlistItems().list(
+        request = youtube_api.playlistItems().list(
             part='snippet',
             playlistId=playlist_id,
             maxResults=50,
@@ -81,7 +87,7 @@ class Command(BaseCommand):
 
         return response.get('items', []), response.get('nextPageToken')
 
-    def _save_video_item_if_not_exists(self, item):
+    def _save_video_item_if_not_exists(self, item, youtube):
         """
         取得した動画情報をデータベースに保存する
         """
@@ -100,7 +106,8 @@ class Command(BaseCommand):
                 thumbnail_medium_url=snippet['thumbnails'].get('medium', {}).get('url'),
                 thumbnail_standard_url=snippet['thumbnails'].get('standard', {}).get('url'),
                 thumbnail_high_url=snippet['thumbnails'].get('high', {}).get('url'),
-                thumbnail_maxres_url=snippet['thumbnails'].get('maxres', {}).get('url')
+                thumbnail_maxres_url=snippet['thumbnails'].get('maxres', {}).get('url'),
+                youtube=youtube
             )
             self.stdout.write(self.style.SUCCESS(f"Video with ID {video_id} has been saved"))
         else:
