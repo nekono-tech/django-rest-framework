@@ -3,11 +3,14 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+    command: npm run dev
     expose:
       - "3000"
     volumes:
       - ./frontend:/app:cached
       - /app/node_modules
+    environment:
+      NODE_ENV: development
     networks:
       - default
 
