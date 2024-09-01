@@ -34,6 +34,8 @@ INSTALLED_APPS = [
     'corsheaders',
     'example',
     'videos',
+    'livers',
+    'youtube',
 ]
 
 MIDDLEWARE = [
