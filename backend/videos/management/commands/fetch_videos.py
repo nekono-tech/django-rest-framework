@@ -34,6 +34,9 @@ class Command(BaseCommand):
 
         try:
             youtube = Youtube.objects.get(channel_id=channel_id)
+            # 古い動画が残らないように削除する
+            Video.objects.filter(youtube=youtube).delete()
+            self.stdout.write(self.style.SUCCESS(f"All videos for channel ID {channel_id} have been deleted."))
             uploads_playlist_id = self.get_uploads_playlist_id(youtube_api, channel_id)
             self.retrieve_and_store_videos(youtube_api, uploads_playlist_id, youtube, max_iterations)
             self.stdout.write(self.style.SUCCESS("Done!"))
@@ -93,25 +96,21 @@ class Command(BaseCommand):
         """
         snippet = item['snippet']
         video_id = snippet['resourceId']['videoId']
+        published_at = self._parse_published_at(snippet['publishedAt'])
 
-        if not Video.objects.filter(video_id=video_id).exists():
-            published_at = self._parse_published_at(snippet['publishedAt'])
-
-            Video.objects.create(
-                video_id=video_id,
-                title=snippet['title'],
-                description=snippet['description'],
-                published_at=published_at,
-                thumbnail_default_url=snippet['thumbnails'].get('default', {}).get('url'),
-                thumbnail_medium_url=snippet['thumbnails'].get('medium', {}).get('url'),
-                thumbnail_standard_url=snippet['thumbnails'].get('standard', {}).get('url'),
-                thumbnail_high_url=snippet['thumbnails'].get('high', {}).get('url'),
-                thumbnail_maxres_url=snippet['thumbnails'].get('maxres', {}).get('url'),
-                youtube=youtube
-            )
-            self.stdout.write(self.style.SUCCESS(f"Video with ID {video_id} has been saved"))
-        else:
-            self.stdout.write(self.style.WARNING(f"Video with ID {video_id} already exists. Skipping."))
+        Video.objects.create(
+            video_id=video_id,
+            title=snippet['title'],
+            description=snippet['description'],
+            published_at=published_at,
+            thumbnail_default_url=snippet['thumbnails'].get('default', {}).get('url'),
+            thumbnail_medium_url=snippet['thumbnails'].get('medium', {}).get('url'),
+            thumbnail_standard_url=snippet['thumbnails'].get('standard', {}).get('url'),
+            thumbnail_high_url=snippet['thumbnails'].get('high', {}).get('url'),
+            thumbnail_maxres_url=snippet['thumbnails'].get('maxres', {}).get('url'),
+            youtube=youtube
+        )
+        self.stdout.write(self.style.SUCCESS(f"Video with ID {video_id} has been saved"))
 
     def _parse_published_at(self, published_at):
         """
