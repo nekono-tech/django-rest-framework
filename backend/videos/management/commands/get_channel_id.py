@@ -18,7 +18,7 @@ class Command(BaseCommand):
         api_key = settings.YOUTUBE_API_KEY
         youtube = build('youtube', 'v3', developerKey=api_key)
 
-        handle = options['for_handle']
+        handle = options['handle']
         request = youtube.channels().list(
             part='snippet',
             forHandle=handle # https://developers.google.com/youtube/v3/docs/channels/list?hl=ja&apix_params=%7B%22part%22%3A%5B%22snippet%2CcontentDetails%2Cstatistics%22%5D%2C%22forHandle%22%3A%22Dola%22%7D#parameters
