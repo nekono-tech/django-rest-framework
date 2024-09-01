@@ -148,3 +148,5 @@ CORS_ALLOW_CREDENTIALS = True
 
 # YouTube API settings
 YOUTUBE_API_KEY = os.getenv('YOUTUBE_API_KEY', '')
+
+CSRF_TRUSTED_ORIGINS = os.getenv('CSRF_TRUSTED_ORIGINS', 'http://localhost').split(',')
