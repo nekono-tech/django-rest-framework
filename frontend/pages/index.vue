@@ -9,9 +9,15 @@
           class="flex-grow p-2 border border-gray-300 rounded-t sm:rounded-l sm:rounded-t-none"
           @input="searchVideos"
         >
-        <select v-model="sortOrder" class="p-2 border border-gray-300 rounded-b sm:rounded-r sm:rounded-b-none sm:w-auto" @change="sortVideos">
+        <select v-model="sortOrder" class="p-2 border border-gray-300 rounded-b sm:rounded-none sm:rounded-l-none sm:w-auto" @change="sortVideos">
           <option value="desc">公開日時が新しい順</option>
           <option value="asc">公開日時が古い順</option>
+        </select>
+        <select v-model="selectedLiverId" class="p-2 border border-gray-300 rounded-b sm:rounded-r sm:rounded-b-none sm:w-auto" @change="filterByLiver">
+          <option value="">すべてのライバー</option>
+          <option v-for="liver in livers" :key="liver.id" :value="liver.id">
+            {{ liver.name }}
+          </option>
         </select>
       </div>
     </div>
@@ -56,6 +62,12 @@
 const { $api } = useNuxtApp()
 const route = useRoute()
 
+const livers = ref([])
+const fetchLivers = async () => {
+  livers.value = await $api.get('livers/')
+  console.log('livers:', livers.value)
+}
+
 const videos = ref({
   results: [],
   next: null,
@@ -67,6 +79,7 @@ const currentPage = ref(parseInt(route.query.page) || 1)
 const pageSize = ref(parseInt(route.query.page_size) || 16)
 const searchQuery = ref(route.query.search || '')
 const sortOrder = ref(route.query.order || 'desc')
+const selectedLiverId = ref(route.query.liver || '')
 
 const totalPages = computed(() => Math.ceil(videos.value.count / pageSize.value))
 
@@ -75,7 +88,8 @@ const getQueryParams = (page) => {
     page: page,
     page_size: pageSize.value,
     search: searchQuery.value,
-    order: sortOrder.value
+    order: sortOrder.value,
+    liver: selectedLiverId.value || undefined
   }
 }
 
@@ -101,13 +115,15 @@ const watchRouteChanges = () => {
       currentPage.value = parseInt(route.query.page) || 1
       searchQuery.value = route.query.search || ''
       sortOrder.value = route.query.order || 'desc'
+      selectedLiverId.value = route.query.liver || ''
       fetchVideos(currentPage.value)
     }
   )
 }
 
-onBeforeMount(() => {
-  fetchVideos(currentPage.value)
+onBeforeMount(async () => {
+  await fetchLivers()
+  await fetchVideos(currentPage.value)
   watchRouteChanges()
 })
 
@@ -136,6 +152,11 @@ const searchVideos = () => {
 }
 
 const sortVideos = () => {
+  currentPage.value = 1
+  updateQueryParams(getQueryParams(currentPage.value))
+}
+
+const filterByLiver = () => {
   currentPage.value = 1
   updateQueryParams(getQueryParams(currentPage.value))
 }

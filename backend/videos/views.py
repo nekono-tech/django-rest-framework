@@ -15,6 +15,7 @@ class IndexView(APIView):
     def get(self, request):
         query = request.query_params.get('search', None)
         order = request.query_params.get('order', 'desc')
+        liver = request.query_params.get('liver', None)
         videos = Video.objects.all()
 
         if query:
@@ -26,6 +27,9 @@ class IndexView(APIView):
             videos = videos.order_by('published_at')
         else:
             videos = videos.order_by('-published_at')
+
+        if liver:
+            videos = videos.filter(youtube__liver=liver)
 
         paginator = CustomPageNumberPagination()
         paginated_videos = paginator.paginate_queryset(videos, request, view=self)
