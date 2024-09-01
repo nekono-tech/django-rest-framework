@@ -1,3 +1,5 @@
 from django.contrib import admin
 
-# Register your models here.
+from youtube.models import Youtube
+
+admin.site.register(Youtube)
