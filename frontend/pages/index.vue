@@ -65,7 +65,6 @@ const route = useRoute()
 const livers = ref([])
 const fetchLivers = async () => {
   livers.value = await $api.get('livers/')
-  console.log('livers:', livers.value)
 }
 
 const videos = ref({

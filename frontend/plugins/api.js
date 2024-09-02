@@ -3,14 +3,8 @@ class ApiClient {
     this.client = $fetch.create({
       baseURL,
       onRequest({ request, options }) {
-        console.log('onRequest ----------------------------------------------------');
-        console.log('request:', request);
-        console.log('options:', options);
       },
       onResponse({ response, options }) {
-        console.log('onResponse ----------------------------------------------------');
-        console.log('response:', response);
-        console.log('options:', options);
       },
     });
   }
