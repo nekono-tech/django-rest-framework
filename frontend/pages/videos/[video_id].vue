@@ -14,7 +14,7 @@
       <p class="text-sm text-gray-500">公開日時: {{ video.published_at }}</p>
     </div>
     <div class="mt-4">
-      <pre class="text-gray-700 whitespace-pre-line" :class="{ 'line-clamp-3': !showFullDescription }">
+      <pre class="text-gray-700 whitespace-pre-wrap break-words overflow-x-auto" :class="{ 'line-clamp-3': !showFullDescription }">
         {{ video.description }}
       </pre>
       <button v-if="isLongDescription" @click="toggleDescription" class="text-blue-500 mt-2">
