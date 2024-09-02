@@ -3,9 +3,7 @@
     <header class="bg-gray-800 text-white py-4 px-8">
       <div class="container mx-auto flex">
         <div class="flex items-center space-x-4">
-          <a href="/" class="flex items-center">
-            <img src="https://placehold.jp/150x150.png" alt="Logo" class="h-8 w-auto" >
-          </a>
+          <a href="/" class="flex items-center">nijisearch</a>
           <a href="/about" class="text-white hover:text-gray-300">
             About
           </a>
