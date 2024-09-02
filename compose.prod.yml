@@ -20,6 +20,8 @@ services:
       - .env
     depends_on:
       - db
+    volumes:
+      - static_volume:/app/static  # 静的ファイルを収集するためのボリューム
 
   nginx:
     build: ./nginx
@@ -30,6 +32,7 @@ services:
       - ./nginx/default.prod.conf:/etc/nginx/conf.d/default.conf
       - ./nginx/certbot/conf:/etc/letsencrypt  # 証明書ファイルのパスをマウント
       - ./nginx/certbot/www:/var/www/certbot   # certbotのチャレンジ用
+      - static_volume:/app/static  # Nginxが静的ファイルにアクセスできるようにする
     networks:
       - default
     depends_on:
@@ -53,3 +56,6 @@ services:
 networks:
   default:
     driver: bridge
+
+volumes:
+  static_volume:
