@@ -1,19 +1,35 @@
 <template>
   <div class="container mx-auto py-2 px-1">
-    <div class="mb-4 mt-4 flex flex-col sm:flex-row justify-center items-center space-y-2 sm:space-y-0 sm:space-x-4">
-      <div class="flex flex-col sm:flex-row max-w-xl w-full">
+    <div class="mb-4 mt-4 flex flex-col items-center space-y-4">
+      <div class="flex w-full max-w-xl">
         <input
           v-model="searchQuery"
           type="text"
           placeholder="動画を検索..."
-          class="flex-grow p-2 border border-gray-300 rounded-t sm:rounded-l sm:rounded-t-none"
-          @input="searchVideos"
+          class="flex-grow p-2 border border-gray-300 rounded-l"
         >
-        <select v-model="sortOrder" class="p-2 border border-gray-300 rounded-b sm:rounded-none sm:rounded-l-none sm:w-auto" @change="sortVideos">
+        <button
+          @click="searchVideos"
+          class="px-6 bg-blue-500 text-white rounded-r"
+        >
+          検索
+        </button>
+      </div>
+
+      <div class="flex flex-col sm:flex-row w-full max-w-xl space-y-2 sm:space-y-0 sm:space-x-4">
+        <select
+          v-model="sortOrder"
+          class="p-2 border border-gray-300 rounded sm:w-auto"
+          @change="sortVideos"
+        >
           <option value="desc">公開日時が新しい順</option>
           <option value="asc">公開日時が古い順</option>
         </select>
-        <select v-model="selectedLiverId" class="p-2 border border-gray-300 rounded-b sm:rounded-r sm:rounded-b-none sm:w-auto" @change="filterByLiver">
+        <select
+          v-model="selectedLiverId"
+          class="p-2 border border-gray-300 rounded sm:w-auto"
+          @change="filterByLiver"
+        >
           <option value="">すべてのライバー</option>
           <option v-for="liver in livers" :key="liver.id" :value="liver.id">
             {{ liver.name }}
