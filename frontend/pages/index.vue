@@ -54,7 +54,7 @@
           <p class="text-xs text-gray-500 mt-1">公開日時: {{ video.published_at }}</p>
         </div>
         <div class="flex flex-col justify-start p-2 w-1/2">
-          <h3 class="text-sm font-medium mb-1">{{ video.title }}</h3>
+          <h3 class="text-sm font-medium mb-1">{{ truncateText(video.title, 60) }}</h3>
           <client-only>
             <p class="text-gray-700 text-xs">{{ truncateText(video.description, 60) }}</p>
           </client-only>
