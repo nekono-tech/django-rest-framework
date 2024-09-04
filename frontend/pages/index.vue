@@ -3,8 +3,6 @@
 
     <!-- Search -->
     <div class="mb-4 mt-4 flex flex-col items-center space-y-4">
-
-      <!-- Search area -->
       <div class="flex w-full max-w-xl">
         <input
           v-model="searchQuery"
@@ -20,10 +18,17 @@
         </button>
       </div>
 
-      <div class="w-full max-w-xl p-4 border border-gray-300 rounded-md">
+      <!-- Filters -->
+      <button
+        @click="toggleFilters"
+        class="w-full max-w-xl text-left p-2 border border-gray-300 rounded-md bg-gray-100 hover:bg-gray-200"
+      >
+        {{ showFilters ? 'フィルターを隠す' : 'フィルターを表示' }}
+      </button>
+
+      <div v-if="showFilters" class="w-full max-w-xl p-4 border border-t-0 border-gray-300 rounded-b-md transition-all duration-300 ease-in-out">
         <div class="flex flex-col sm:flex-row sm:space-x-4">
           
-          <!-- Order sort-->
           <div class="flex flex-col mb-4 sm:mb-0">
             <label for="sortOrder" class="text-sm font-medium text-gray-700 mb-1">日付で並び替え</label>
             <select
@@ -37,7 +42,6 @@
             </select>
           </div>
 
-          <!-- Liver sort -->
           <div class="flex flex-col">
             <label for="liverSelect" class="text-sm font-medium text-gray-700 mb-1">ライバーで絞り込み</label>
             <select
@@ -116,6 +120,11 @@ const sortOrder = ref(route.query.order || 'desc')
 const selectedLiverId = ref(route.query.liver || '')
 
 const totalPages = computed(() => Math.ceil(videos.value.count / pageSize.value))
+
+const showFilters = ref(false)
+const toggleFilters = () => {
+  showFilters.value = !showFilters.value
+}
 
 const getQueryParams = (page) => {
   return {
