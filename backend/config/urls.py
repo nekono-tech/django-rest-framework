@@ -7,5 +7,6 @@ urlpatterns = [
         path('example/', include('example.urls')),
         path('videos/', include('videos.urls')),
         path('livers/', include('livers.urls')),
+        path('users/', include('users.urls')),
     ]))
 ]
