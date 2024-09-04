@@ -12,9 +12,10 @@
         >
         <button
           @click="searchVideos"
-          class="px-6 bg-blue-500 text-white rounded-r"
+          class="px-6 bg-blue-500 text-white rounded-r flex items-center justify-center"
+          :disabled="isLoading"
         >
-          検索
+          <span v-if="isLoading" class="loader mr-2"></span> 検索
         </button>
       </div>
 
@@ -98,9 +99,11 @@
 </template>
 
 <script setup>
+import { ref, computed, watch, onBeforeMount } from 'vue'
 const { $api } = useNuxtApp()
 const route = useRoute()
 
+const isLoading = ref(false)
 const livers = ref([])
 const fetchLivers = async () => {
   livers.value = await $api.get('livers/')
@@ -146,9 +149,14 @@ const updateQueryParams = (newParams) => {
 }
 
 const fetchVideos = async (page = 1) => {
-  videos.value = await $api.get('videos/', {
-    params: getQueryParams(page)
-  })
+  isLoading.value = true
+  try {
+    videos.value = await $api.get('videos/', {
+      params: getQueryParams(page)
+    })
+  } finally {
+    isLoading.value = false
+  }
 }
 
 const watchRouteChanges = () => {
@@ -208,3 +216,19 @@ const truncateText = (text, maxLength) => {
   return text.length > maxLength ? text.substring(0, maxLength) + '...' : text
 }
 </script>
+
+<style scoped>
+.loader {
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #3498db;
+  border-radius: 50%;
+  width: 16px;
+  height: 16px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+</style>
