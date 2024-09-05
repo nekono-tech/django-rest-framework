@@ -102,6 +102,7 @@
 import { ref, computed, watch, onBeforeMount } from 'vue'
 const { $api } = useNuxtApp()
 const route = useRoute()
+const { truncateText } = useTextUtils();
 
 const isLoading = ref(false)
 const livers = ref([])
@@ -210,10 +211,6 @@ const sortVideos = () => {
 const filterByLiver = () => {
   currentPage.value = 1
   updateQueryParams(getQueryParams(currentPage.value))
-}
-
-const truncateText = (text, maxLength) => {
-  return text.length > maxLength ? text.substring(0, maxLength) + '...' : text
 }
 </script>
 
