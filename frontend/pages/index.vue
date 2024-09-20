@@ -3,7 +3,7 @@
 
     <!-- Search -->
     <div class="mb-4 mt-4 flex flex-col items-center space-y-4">
-      <div class="flex w-full max-w-xl">
+      <UButtonGroup orientation="horizontal" class="w-full max-w-xl" size="md">
         <UInput
           icon="i-heroicons-magnifying-glass-20-solid"
           class="flex-grow"
@@ -11,16 +11,14 @@
           color="primary"
           variant="outline"
           placeholder="動画を検索..."
-          :loading="isLoading"
         />
-        <button
+        <UButton 
           @click="searchVideos"
-          class="px-6 bg-blue-500 text-white rounded-r flex items-center justify-center"
+          label="検索" 
           :disabled="isLoading"
-        >
-          <span v-if="isLoading" class="loader mr-2"></span> 検索
-        </button>
-      </div>
+          :loading="isLoading" 
+        />
+      </UButtonGroup>
 
       <!-- Filters -->
       <button
