@@ -6,6 +6,7 @@ export default defineNuxtConfig({
     '~/plugins/api.js',
   ],
   modules: [
-    '@nuxt/eslint'
+    '@nuxt/eslint', 
+    '@nuxt/ui'
   ],
 })
