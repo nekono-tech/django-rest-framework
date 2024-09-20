@@ -20,46 +20,33 @@
         />
       </UButtonGroup>
 
-      <!-- Filters -->
-      <button
-        @click="toggleFilters"
-        class="w-full max-w-xl text-left p-2 border border-gray-300 rounded-md bg-gray-100 hover:bg-gray-200"
-      >
-        {{ showFilters ? 'フィルターを隠す' : 'フィルターを表示' }}
-      </button>
+      <UAccordion :items="[{ label: '検索フィルター', slot: 'filter' }]" class="w-full max-w-xl">
+        <template #filter>
+          <div class="flex flex-col md:flex-row gap-4">
+            <div class="flex flex-col">
+              <label for="sortOrder" class="mb-1">日付で並び替え</label>
+              <USelect
+                id="sortOrder"
+                v-model="sortOrder"
+                size="md"
+                :options="filterPublishedDate"
+                @change="sortVideos"
+              />
+            </div>
 
-      <div v-if="showFilters" class="w-full max-w-xl p-4 border border-t-0 border-gray-300 rounded-b-md transition-all duration-300 ease-in-out">
-        <div class="flex flex-col sm:flex-row sm:space-x-4">
-          
-          <div class="flex flex-col mb-4 sm:mb-0">
-            <label for="sortOrder" class="text-sm font-medium text-gray-700 mb-1">日付で並び替え</label>
-            <select
-              id="sortOrder"
-              v-model="sortOrder"
-              class="p-2 border border-gray-300 rounded"
-              @change="sortVideos"
-            >
-              <option value="desc">公開日時が新しい順</option>
-              <option value="asc">公開日時が古い順</option>
-            </select>
+            <div class="flex flex-col">
+              <label for="chooseLiver" class="mb-1">ライバーで絞り込み</label>
+              <USelect
+                id="chooseLiver"
+                v-model="selectedLiverId"
+                size="md"
+                :options="filterLivers"
+                @change="filterByLiver"
+              />
+            </div>
           </div>
-
-          <div class="flex flex-col">
-            <label for="liverSelect" class="text-sm font-medium text-gray-700 mb-1">ライバーで絞り込み</label>
-            <select
-              id="liverSelect"
-              v-model="selectedLiverId"
-              class="p-2 border border-gray-300 rounded"
-              @change="filterByLiver"
-            >
-              <option value="">すべてのライバー</option>
-              <option v-for="liver in livers" :key="liver.id" :value="liver.id">
-                {{ liver.name }}
-              </option>
-            </select>
-          </div>
-        </div>
-      </div>
+        </template>
+      </UAccordion>
     </div>
 
     <VideoCards :videos="videos"/>
@@ -77,34 +64,44 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, onBeforeMount } from 'vue'
 const { $api } = useNuxtApp()
 const route = useRoute()
 
 const isLoading = ref(false)
 const livers = ref([])
-const fetchLivers = async () => {
-  livers.value = await $api.get('livers/')
-}
-
 const videos = ref({
   results: [],
   next: null,
   previous: null,
   count: 0
 })
-
 const currentPage = ref(parseInt(route.query.page) || 1)
 const pageSize = ref(parseInt(route.query.page_size) || 16)
 const searchQuery = ref(route.query.search || '')
 const sortOrder = ref(route.query.order || 'desc')
 const selectedLiverId = ref(route.query.liver || '')
 
+const filterPublishedDate = [{
+  label: '公開日時が新しい順',
+  value: 'desc'
+}, {
+  label: '公開日時が古い順',
+  value: 'asc'
+}]
+
+const filterLivers = ref([
+  {
+    label: 'すべてのライバー',
+    value: ''
+  },
+])
+
+// Computed
 const totalPages = computed(() => Math.ceil(videos.value.count / pageSize.value))
 
-const showFilters = ref(false)
-const toggleFilters = () => {
-  showFilters.value = !showFilters.value
+// Methods
+const fetchLivers = async () => {
+  livers.value = await $api.get('livers/')
 }
 
 const getQueryParams = (page) => {
@@ -138,23 +135,8 @@ const fetchVideos = async (page = 1) => {
 }
 
 const watchRouteChanges = () => {
-  watch(
-    () => route.fullPath,
-    () => {
-      currentPage.value = parseInt(route.query.page) || 1
-      searchQuery.value = route.query.search || ''
-      sortOrder.value = route.query.order || 'desc'
-      selectedLiverId.value = route.query.liver || ''
-      fetchVideos(currentPage.value)
-    }
-  )
-}
 
-onBeforeMount(async () => {
-  await fetchLivers()
-  await fetchVideos(currentPage.value)
-  watchRouteChanges()
-})
+}
 
 const nextPage = () => {
   if (videos.value.next) {
@@ -189,6 +171,24 @@ const filterByLiver = () => {
   currentPage.value = 1
   updateQueryParams(getQueryParams(currentPage.value))
 }
+
+await fetchLivers()
+await fetchVideos(currentPage.value)
+filterLivers.value.push(...livers.value.map(liver => ({
+  label: liver.name,
+  value: liver.id
+})))
+
+watch(
+  () => route.fullPath,
+  () => {
+    currentPage.value = parseInt(route.query.page) || 1
+    searchQuery.value = route.query.search || ''
+    sortOrder.value = route.query.order || 'desc'
+    selectedLiverId.value = route.query.liver || ''
+    fetchVideos(currentPage.value)
+  }
+)
 </script>
 
 <style scoped>
