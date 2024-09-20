@@ -1,6 +1,6 @@
 <template>
   <div class="container mx-auto py-2 px-1">
-
+    <UProgress v-if="isLoading" animation="carousel" class="fixed top-0 left-0"/>
     <!-- Search -->
     <div class="mb-4 mt-4 flex flex-col items-center space-y-4">
       <UButtonGroup orientation="horizontal" class="w-full max-w-xl" size="md">
@@ -16,7 +16,6 @@
           @click="searchVideos"
           label="検索" 
           :disabled="isLoading"
-          :loading="isLoading" 
         />
       </UButtonGroup>
 
