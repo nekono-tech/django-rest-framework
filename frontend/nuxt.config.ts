@@ -6,13 +6,6 @@ export default defineNuxtConfig({
     '~/plugins/api.js',
   ],
   modules: [
-    '@nuxtjs/tailwindcss',
     '@nuxt/eslint'
   ],
-  tailwindcss: {
-    cssPath: '~/assets/css/tailwind.css',
-    exposeConfig: false,
-    injectPosition: 0,
-    viewer: false,
-  },
 })

@@ -15,8 +15,5 @@
     "@nuxt/eslint": "^0.5.4",
     "nuxt": "^3.13.0",
     "vue": "latest"
-  },
-  "devDependencies": {
-    "@nuxtjs/tailwindcss": "^6.12.1"
   }
 }
