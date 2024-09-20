@@ -20,16 +20,16 @@
         </div>
       </UContainer>
     </header>
-    <main>
+    <main class="py-4">
       <slot/>
     </main>
     <footer class="py-4 border-t border-slate-900/10 dark:border-slate-300/10">
-      <div class="container mx-auto text-center">
+      <UContainer class="mx-auto text-center">
         <p class="text-sm">&copy; 2024 nijisearch</p>
         <p class="text-xs mt-2">
           本サイトは有志による二次創作であり、株式会社ANYCOLOR様には一切の関係がありません。
         </p>
-      </div>
+      </UContainer>
     </footer>
   </div>
 </template>
