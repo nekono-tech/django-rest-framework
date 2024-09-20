@@ -23,7 +23,7 @@
     <main>
       <slot/>
     </main>
-    <footer class="bg-gray-800 text-white py-4">
+    <footer class="py-4 border-t border-slate-900/10 dark:border-slate-300/10">
       <div class="container mx-auto text-center">
         <p class="text-sm">&copy; 2024 nijisearch</p>
         <p class="text-xs mt-2">
