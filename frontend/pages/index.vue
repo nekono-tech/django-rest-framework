@@ -4,12 +4,15 @@
     <!-- Search -->
     <div class="mb-4 mt-4 flex flex-col items-center space-y-4">
       <div class="flex w-full max-w-xl">
-        <input
+        <UInput
+          icon="i-heroicons-magnifying-glass-20-solid"
+          class="flex-grow"
           v-model="searchQuery"
-          type="text"
+          color="primary"
+          variant="outline"
           placeholder="動画を検索..."
-          class="flex-grow p-2 border border-gray-300 rounded-l"
-        >
+          :loading="isLoading"
+        />
         <button
           @click="searchVideos"
           class="px-6 bg-blue-500 text-white rounded-r flex items-center justify-center"
