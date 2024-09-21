@@ -3,10 +3,14 @@
     <UCard 
       class="hover:bg-slate-300 dark:hover:bg-slate-700 transition-colors duration-300"
       :ui="{
+        header: { padding: 'px-2 py-2 sm:px-4' },
         body: { padding: 'px-2 py-3 sm:p-4'}, 
         footer: { padding: 'px-2 py-2 sm:px-4' }
       }"
     >
+      <template #header>
+        <p class="font-semi-bold text-primary">{{ video.liver_name }}</p>
+      </template>
       <div class="flex gap-2">
         <div class="w-1/2">
           <img :src="video.thumbnail_high_url" alt="video thumbnail">
