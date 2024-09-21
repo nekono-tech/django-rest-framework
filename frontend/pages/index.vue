@@ -51,7 +51,7 @@
       </UAccordion>
     </div>
 
-    <VideoCards :videos="videos"/>
+    <VideoCards :videos="videos.results"/>
 
     <UPagination 
       v-model="page"
