@@ -3,6 +3,11 @@
     <UProgress v-if="isLoading" animation="carousel" class="fixed top-0 left-0"/>
 
     <div class="mb-4 mt-4 flex flex-col items-center space-y-4">
+      <div class="max-w-xl" v-if="selectedLivers.length > 0">
+        <p>選択中のライバー</p>
+        <UBadge v-for="liver in selectedLivers" :key="liver.value" :label="liver.label" color="gray"/>
+      </div>
+
       <UButtonGroup orientation="horizontal" class="w-full max-w-xl" size="md">
         <UInput
           icon="i-heroicons-magnifying-glass-20-solid"
@@ -37,12 +42,16 @@
             <div class="flex flex-col">
               <label for="chooseLiver" class="mb-1">ライバーで絞り込み</label>
               <ClientOnly>
-                <USelect
+                <USelectMenu
+                  searchable
+                  searchable-placeholder="ライバー名で検索..."
                   id="chooseLiver"
-                  v-model="model.liver"
+                  v-model="selectedLivers"
+                  multiple
                   size="md"
                   :options="filterLivers"
                   @change="filterByLiver"
+                  class="min-w-[200px]"
                 />
               </ClientOnly>
             </div>
@@ -85,8 +94,10 @@ const model = ref({
   page_size: parseInt(route.query.page_size) || 16,
   search: route.query.search || '',
   order: route.query.order || 'desc',
-  liver: route.query.liver || ''
+  livers: []
 })
+
+const selectedLivers = ref([])
 
 const filterPublishedDate = [{
   label: '公開日時が新しい順',
@@ -96,26 +107,33 @@ const filterPublishedDate = [{
   value: 'asc'
 }]
 
-const filterLivers = ref([
-  {
-    label: 'すべてのライバー',
-    value: ''
-  },
-])
+const filterLivers = ref([])
 
 const fetchLivers = async () => {
   livers.value = await $api.get('livers/')
 }
 
 const navigateWithQuery = () => {
+  const queryParams = {
+    ...route.query,
+    ...model.value,
+    livers: model.value.livers.join(',')
+  }
+
   navigateTo({
-    query: { ...route.query, ...model.value }
+    query: queryParams
   })
 }
 
 const fetchVideos = async () => {
   isLoading.value = true
-  videos.value = await $api.get('videos/', { params: model.value })
+
+  const queryParams = {
+    ...model.value,
+    livers: model.value.livers.join(',')
+  }
+
+  videos.value = await $api.get('videos/', { params: queryParams })
   pageItems.value = Array.from({ length: videos.value.count }, (_, i) => i + 1)
   isLoading.value = false
 
@@ -139,6 +157,7 @@ const sortVideos = () => {
 
 const filterByLiver = () => {
   model.value.page = 1
+  model.value.livers = selectedLivers.value.map(liver => liver.value).filter(value => value)
   navigateWithQuery()
 }
 
@@ -149,6 +168,13 @@ filterLivers.value.push(...livers.value.map(liver => ({
   value: liver.id
 })))
 
+selectedLivers.value = route.query.livers 
+  ? route.query.livers.split(',').map(id => {
+      const liver = filterLivers.value.find(l => l.value === parseInt(id))
+      return liver || { label: '', value: parseInt(id) }
+    })
+  : []
+
 watch(
   () => route.query,
   (newQuery) => {
@@ -157,7 +183,7 @@ watch(
       page_size: parseInt(newQuery.page_size) || 16,
       search: newQuery.search || '',
       order: newQuery.order || 'desc',
-      liver: newQuery.liver || ''
+      livers: newQuery.livers ? newQuery.livers.split(',').map(id => parseInt(id)) : []
     }
     fetchVideos(model.value.page)
   },
