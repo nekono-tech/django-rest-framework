@@ -36,13 +36,15 @@
 
             <div class="flex flex-col">
               <label for="chooseLiver" class="mb-1">ライバーで絞り込み</label>
-              <USelect
-                id="chooseLiver"
-                v-model="selectedLiverId"
-                size="md"
-                :options="filterLivers"
-                @change="filterByLiver"
-              />
+              <ClientOnly>
+                <USelect
+                  id="chooseLiver"
+                  v-model="selectedLiverId"
+                  size="md"
+                  :options="filterLivers"
+                  @change="filterByLiver"
+                />
+              </ClientOnly>
             </div>
           </div>
         </template>
