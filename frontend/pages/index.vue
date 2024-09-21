@@ -7,7 +7,7 @@
         <UInput
           icon="i-heroicons-magnifying-glass-20-solid"
           class="flex-grow"
-          v-model="searchQuery"
+          v-model="model.search"
           color="primary"
           variant="outline"
           placeholder="動画を検索..."
@@ -27,7 +27,7 @@
               <label for="sortOrder" class="mb-1">日付で並び替え</label>
               <USelect
                 id="sortOrder"
-                v-model="sortOrder"
+                v-model="model.order"
                 size="md"
                 :options="filterPublishedDate"
                 @change="sortVideos"
@@ -39,7 +39,7 @@
               <ClientOnly>
                 <USelect
                   id="chooseLiver"
-                  v-model="selectedLiverId"
+                  v-model="model.liver"
                   size="md"
                   :options="filterLivers"
                   @change="filterByLiver"
@@ -54,9 +54,9 @@
     <VideoCards :videos="videos.results"/>
 
     <UPagination 
-      v-model="page"
+      v-model="model.page"
       :total="pageItems.length"
-      :page-count="pageSize"
+      :page-count="model.page_size"
       :to="(page) => ({ 
           query: { ...route.query, page } 
         })"
@@ -78,15 +78,16 @@ const videos = ref({
   previous: null,
   count: 0
 })
-const page = ref(parseInt(route.query.page) || 1)
 const pageItems = ref([])
 
-const pageSize = ref(parseInt(route.query.page_size) || 16)
-const searchQuery = ref(route.query.search || '')
-const sortOrder = ref(route.query.order || 'desc')
-const selectedLiverId = ref(route.query.liver || '')
+const model = ref({
+  page: parseInt(route.query.page) || 1,
+  page_size: parseInt(route.query.page_size) || 16,
+  search: route.query.search || '',
+  order: route.query.order || 'desc',
+  liver: route.query.liver || ''
+})
 
-// filter options
 const filterPublishedDate = [{
   label: '公開日時が新しい順',
   value: 'desc'
@@ -102,37 +103,27 @@ const filterLivers = ref([
   },
 ])
 
-// Methods
 const fetchLivers = async () => {
   livers.value = await $api.get('livers/')
 }
 
-const getQueryParams = (page) => {
-  return {
-    page: page,
-    page_size: pageSize.value,
-    search: searchQuery.value,
-    order: sortOrder.value,
-    liver: selectedLiverId.value || undefined
-  }
-}
+const getQueryParams = () => ({
+  ...model.value,
+  liver: model.value.liver || undefined
+})
 
-const updateQueryParams = (newParams) => {
+const navigateWithQuery = () => {
   navigateTo({
-    query: {
-      ...route.query,
-      ...newParams
-    }
+    query: { ...route.query, ...model.value }
   })
 }
 
-const fetchVideos = async (page = 1) => {
+const fetchVideos = async () => {
   isLoading.value = true
-  videos.value = await $api.get('videos/', { params: getQueryParams(page) })
+  videos.value = await $api.get('videos/', { params: getQueryParams() })
   pageItems.value = Array.from({ length: videos.value.count }, (_, i) => i + 1)
   isLoading.value = false
 
-  // TODO: スクロールさせるかはユーザーに選択させるようにしたい
   if (import.meta.client) {
     window.scrollTo({
       top: 0,
@@ -142,35 +133,39 @@ const fetchVideos = async (page = 1) => {
 }
 
 const searchVideos = () => {
-  page.value = 1
-  updateQueryParams(getQueryParams(page.value))
+  model.value.page = 1
+  navigateWithQuery()
 }
 
 const sortVideos = () => {
-  page.value = 1
-  updateQueryParams(getQueryParams(page.value))
+  model.value.page = 1
+  navigateWithQuery()
 }
 
 const filterByLiver = () => {
-  page.value = 1
-  updateQueryParams(getQueryParams(page.value))
+  model.value.page = 1
+  navigateWithQuery()
 }
 
 await fetchLivers()
-await fetchVideos(page.value)
+await fetchVideos(model.value.page)
 filterLivers.value.push(...livers.value.map(liver => ({
   label: liver.name,
   value: liver.id
 })))
 
 watch(
-  () => route.fullPath,
-  () => {
-    page.value = parseInt(route.query.page) || 1
-    searchQuery.value = route.query.search || ''
-    sortOrder.value = route.query.order || 'desc'
-    selectedLiverId.value = route.query.liver || ''
-    fetchVideos(page.value)
-  }
+  () => route.query,
+  (newQuery) => {
+    model.value = {
+      page: parseInt(newQuery.page) || 1,
+      page_size: parseInt(newQuery.page_size) || 16,
+      search: newQuery.search || '',
+      order: newQuery.order || 'desc',
+      liver: newQuery.liver || ''
+    }
+    fetchVideos(model.value.page)
+  },
+  { immediate: true }
 )
 </script>
