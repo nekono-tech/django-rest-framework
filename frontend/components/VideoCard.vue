@@ -1,20 +1,25 @@
 <template>
-  <a
-    :href="`/videos/${video.video_id}/`"
-    class="flex flex-row hover:bg-gray-300 transition-colors duration-100"
-  >
-    <div class="flex flex-col w-1/2 p-2">
-      <img
-        :src="video.thumbnail_high_url"
-        alt="Thumbnail"
-        class="aspect-video object-cover"
-      >
-      <p class="text-xs text-gray-500 mt-1">公開日時: {{ video.published_at }}</p>
-    </div>
-    <div class="flex flex-col justify-start w-1/2 p-2">
-      <h3 class="text-sm font-medium mb-1">{{ truncateText(video.title, 40) }}</h3>
-      <p class="text-xs text-gray-700">{{ truncateText(video.description, 40) }}</p>
-    </div>
+  <a :href="`/videos/${video.video_id}/`" class="rounded-lg">
+    <UCard 
+      class="hover:bg-slate-300 dark:hover:bg-slate-700 transition-colors duration-300"
+      :ui="{
+        body: { padding: 'px-2 py-3 sm:p-4'}, 
+        footer: { padding: 'px-2 py-2 sm:px-4'}
+      }"
+    >
+      <div class="flex gap-2">
+        <div class="w-1/2">
+          <img :src="video.thumbnail_high_url" alt="video thumbnail">
+        </div>
+        <div class="flex flex-col w-1/2 gap-1">
+          <h3 class="text-sm text-slate-900 dark:text-slate-200 font-medium break-words">{{ $utils.truncateText(video.title, 40) }}</h3>
+          <p class="text-xs">{{ $utils.truncateText(video.description, 40) }}</p>
+        </div>
+      </div>
+      <template #footer>
+        <p class="text-xs">公開日時: {{ video.published_at }}</p>
+      </template>
+    </UCard>
   </a>
 </template>
 
@@ -22,6 +27,4 @@
 defineProps({
   video: Object
 })
-
-const { truncateText } = useTextUtils()
 </script>
