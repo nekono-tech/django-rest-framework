@@ -19,7 +19,6 @@
         <UButton 
           @click="toggleDescription"
           :label="isFullDescription ? '閉じる' : 'もっと見る'" 
-          :disabled="isLoading"
         />
       </div>
     </UCard>
