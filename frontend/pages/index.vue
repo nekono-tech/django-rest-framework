@@ -119,14 +119,12 @@ const fetchLivers = async () => {
 }
 
 const navigateWithQuery = () => {
-  const queryParams = {
-    ...route.query,
-    ...model.value,
-    livers: model.value.livers.join(',')
-  }
-
+  const joinLivers = model.value.livers.join(',')
   navigateTo({
-    query: queryParams
+    query: {
+      ...model.value,
+      livers: joinLivers
+    }
   })
 }
 
