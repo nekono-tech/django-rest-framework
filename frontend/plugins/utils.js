@@ -1,9 +1,9 @@
-export function useTextUtils() {
+export default defineNuxtPlugin((nuxtApp) => {
   const truncateText = (text, maxLength) => {
     return text.length > maxLength ? text.substring(0, maxLength) + '...' : text
   }
 
-  return {
+  nuxtApp.provide('utils', {
     truncateText
-  }
-}
+  })
+})
