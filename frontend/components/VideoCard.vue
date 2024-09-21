@@ -4,7 +4,7 @@
       class="hover:bg-slate-300 dark:hover:bg-slate-700 transition-colors duration-300"
       :ui="{
         body: { padding: 'px-2 py-3 sm:p-4'}, 
-        footer: { padding: 'px-2 py-2 sm:px-4'}
+        footer: { padding: 'px-2 py-2 sm:px-4' }
       }"
     >
       <div class="flex gap-2">
@@ -13,7 +13,7 @@
         </div>
         <div class="flex flex-col w-1/2 gap-1">
           <h3 class="text-sm text-slate-900 dark:text-slate-200 font-medium break-words">{{ $utils.truncateText(video.title, 40) }}</h3>
-          <p class="text-xs">{{ $utils.truncateText(video.description, 40) }}</p>
+          <p class="text-xs break-words">{{ $utils.truncateText(video.description, 40) }}</p>
         </div>
       </div>
       <template #footer>
