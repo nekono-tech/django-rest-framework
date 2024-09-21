@@ -19,9 +19,18 @@ class IndexView(APIView):
         videos = Video.objects.all()
 
         if query:
-            videos = videos.filter(
-                Q(title__icontains=query) | Q(description__icontains=query)
-            )
+            # 前後の空白をカット
+            query = query.strip()
+
+            # クエリに含まれるスペースで区切る(全角スペースも含む)
+            query = query.replace('　', ' ')
+            query = query.split(' ')
+
+            # クエリに含まれる単語を含む動画を取得
+            for q in query:
+                videos = videos.filter(
+                    Q(title__icontains=q) | Q(description__icontains=q) | Q(youtube__liver__name__icontains=q)
+                )
 
         if order == 'asc':
             videos = videos.order_by('published_at')
