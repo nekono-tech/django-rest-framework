@@ -1,7 +1,7 @@
 <template>
   <div class="container mx-auto py-2 px-1">
     <UProgress v-if="isLoading" animation="carousel" class="fixed top-0 left-0"/>
-    <!-- Search -->
+
     <div class="mb-4 mt-4 flex flex-col items-center space-y-4">
       <UButtonGroup orientation="horizontal" class="w-full max-w-xl" size="md">
         <UInput
@@ -50,14 +50,15 @@
 
     <VideoCards :videos="videos"/>
 
-    <pagenation
-      :total-pages="totalPages"
-      :current-page="currentPage"
-      :has-next="Boolean(videos.next)"
-      :has-previous="Boolean(videos.previous)"
-      @next-page="nextPage"
-      @prev-page="prevPage"
-      @go-to-page="goToPage"
+    <UPagination 
+      v-model="page"
+      :total="pageItems.length"
+      :page-count="pageSize"
+      :to="(page) => ({ 
+          query: { ...route.query, page } 
+        })"
+      size="md"
+      class="justify-center mt-6"
     />
   </div>
 </template>
@@ -74,12 +75,15 @@ const videos = ref({
   previous: null,
   count: 0
 })
-const currentPage = ref(parseInt(route.query.page) || 1)
+const page = ref(parseInt(route.query.page) || 1)
+const pageItems = ref([])
+
 const pageSize = ref(parseInt(route.query.page_size) || 16)
 const searchQuery = ref(route.query.search || '')
 const sortOrder = ref(route.query.order || 'desc')
 const selectedLiverId = ref(route.query.liver || '')
 
+// filter options
 const filterPublishedDate = [{
   label: '公開日時が新しい順',
   value: 'desc'
@@ -94,9 +98,6 @@ const filterLivers = ref([
     value: ''
   },
 ])
-
-// Computed
-const totalPages = computed(() => Math.ceil(videos.value.count / pageSize.value))
 
 // Methods
 const fetchLivers = async () => {
@@ -124,55 +125,34 @@ const updateQueryParams = (newParams) => {
 
 const fetchVideos = async (page = 1) => {
   isLoading.value = true
-  try {
-    videos.value = await $api.get('videos/', {
-      params: getQueryParams(page)
-    })
-  } finally {
-    isLoading.value = false
-  }
-}
+  videos.value = await $api.get('videos/', { params: getQueryParams(page) })
+  pageItems.value = Array.from({ length: videos.value.count }, (_, i) => i + 1)
+  isLoading.value = false
 
-const watchRouteChanges = () => {
-
-}
-
-const nextPage = () => {
-  if (videos.value.next) {
-    currentPage.value++
-    updateQueryParams(getQueryParams(currentPage.value))
-  }
-}
-
-const prevPage = () => {
-  if (videos.value.previous) {
-    currentPage.value--
-    updateQueryParams(getQueryParams(currentPage.value))
-  }
-}
-
-const goToPage = (page) => {
-  currentPage.value = page
-  updateQueryParams(getQueryParams(currentPage.value))
+  // TODO: スクロールさせるかはユーザーに選択させるようにしたい
+  window.scrollTo({
+    top: 0,
+    behavior: 'smooth'
+  })
 }
 
 const searchVideos = () => {
-  currentPage.value = 1
-  updateQueryParams(getQueryParams(currentPage.value))
+  page.value = 1
+  updateQueryParams(getQueryParams(page.value))
 }
 
 const sortVideos = () => {
-  currentPage.value = 1
-  updateQueryParams(getQueryParams(currentPage.value))
+  page.value = 1
+  updateQueryParams(getQueryParams(page.value))
 }
 
 const filterByLiver = () => {
-  currentPage.value = 1
-  updateQueryParams(getQueryParams(currentPage.value))
+  page.value = 1
+  updateQueryParams(getQueryParams(page.value))
 }
 
 await fetchLivers()
-await fetchVideos(currentPage.value)
+await fetchVideos(page.value)
 filterLivers.value.push(...livers.value.map(liver => ({
   label: liver.name,
   value: liver.id
@@ -181,27 +161,11 @@ filterLivers.value.push(...livers.value.map(liver => ({
 watch(
   () => route.fullPath,
   () => {
-    currentPage.value = parseInt(route.query.page) || 1
+    page.value = parseInt(route.query.page) || 1
     searchQuery.value = route.query.search || ''
     sortOrder.value = route.query.order || 'desc'
     selectedLiverId.value = route.query.liver || ''
-    fetchVideos(currentPage.value)
+    fetchVideos(page.value)
   }
 )
 </script>
-
-<style scoped>
-.loader {
-  border: 4px solid #f3f3f3;
-  border-top: 4px solid #3498db;
-  border-radius: 50%;
-  width: 16px;
-  height: 16px;
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-</style>
