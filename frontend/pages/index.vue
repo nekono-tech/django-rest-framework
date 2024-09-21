@@ -11,6 +11,7 @@
           color="primary"
           variant="outline"
           placeholder="動画を検索..."
+          @keydown.enter="searchVideos"
         />
         <UButton 
           @click="searchVideos"
