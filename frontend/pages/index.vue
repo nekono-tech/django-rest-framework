@@ -41,19 +41,24 @@
 
             <div class="flex flex-col">
               <label for="chooseLiver" class="mb-1">ライバーで絞り込み</label>
-              <ClientOnly>
-                <USelectMenu
-                  searchable
-                  searchable-placeholder="ライバー名で検索..."
-                  id="chooseLiver"
-                  v-model="selectedLivers"
-                  multiple
-                  size="md"
-                  :options="filterLivers"
-                  @change="filterByLiver"
-                  class="min-w-[200px]"
-                />
-              </ClientOnly>
+              <div class="flex gap-2">
+                <ClientOnly>
+                  <USelectMenu
+                    searchable
+                    searchable-placeholder="ライバー名で検索..."
+                    id="chooseLiver"
+                    v-model="selectedLivers"
+                    multiple
+                    size="md"
+                    :options="filterLivers"
+                    @change="filterByLiver"
+                    class="min-w-[200px]"
+                  />
+                </ClientOnly>
+                <div class="flex ">
+                  <UButton @click="clearLivers" label="絞り込みをクリア"/>
+                </div>
+              </div>
             </div>
           </div>
         </template>
@@ -159,6 +164,11 @@ const filterByLiver = () => {
   model.value.page = 1
   model.value.livers = selectedLivers.value.map(liver => liver.value).filter(value => value)
   navigateWithQuery()
+}
+
+const clearLivers = () => {
+  selectedLivers.value = []
+  filterByLiver()
 }
 
 await fetchLivers()
