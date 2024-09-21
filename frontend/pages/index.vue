@@ -107,11 +107,6 @@ const fetchLivers = async () => {
   livers.value = await $api.get('livers/')
 }
 
-const getQueryParams = () => ({
-  ...model.value,
-  liver: model.value.liver || undefined
-})
-
 const navigateWithQuery = () => {
   navigateTo({
     query: { ...route.query, ...model.value }
@@ -120,7 +115,7 @@ const navigateWithQuery = () => {
 
 const fetchVideos = async () => {
   isLoading.value = true
-  videos.value = await $api.get('videos/', { params: getQueryParams() })
+  videos.value = await $api.get('videos/', { params: model.value })
   pageItems.value = Array.from({ length: videos.value.count }, (_, i) => i + 1)
   isLoading.value = false
 
