@@ -5,6 +5,7 @@ from videos.models import Video
 
 class VideoSerializer(serializers.ModelSerializer):
     published_at = serializers.DateTimeField(format="%Y/%m/%d %H:%M")
+    liver_name = serializers.SerializerMethodField()
 
     class Meta:
         model = Video
@@ -17,5 +18,8 @@ class VideoSerializer(serializers.ModelSerializer):
             'thumbnail_medium_url',
             'thumbnail_standard_url',
             'thumbnail_high_url',
-            'thumbnail_maxres_url'
+            'liver_name',
         ]
+
+    def get_liver_name(self, obj):
+        return obj.youtube.liver.name if obj.youtube and obj.youtube.liver else None
