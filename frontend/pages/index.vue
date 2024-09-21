@@ -193,6 +193,12 @@ watch(
       order: newQuery.order || 'desc',
       livers: newQuery.livers ? newQuery.livers.split(',').map(id => parseInt(id)) : []
     }
+    selectedLivers.value = newQuery.livers 
+      ? newQuery.livers.split(',').map(id => {
+          const liver = filterLivers.value.find(l => l.value === parseInt(id))
+          return liver || { label: '', value: parseInt(id) }
+        })
+      : []
     fetchVideos(model.value.page)
   },
   { immediate: true }
