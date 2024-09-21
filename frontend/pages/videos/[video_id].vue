@@ -15,7 +15,9 @@
         <p class="text-sm">公開日時: {{ video.published_at }}</p>
       </div>
       <div class="mt-4">
-        <pre class="whitespace-pre-wrap break-words overflow-x-auto">{{ isFullDescription ? video.description: $utils.truncateText(video.description, 40) }}</pre>
+        <ClientOnly>
+          <pre class="whitespace-pre-wrap break-words overflow-x-auto">{{ isFullDescription ? video.description: $utils.truncateText(video.description, 40) }}</pre>
+        </ClientOnly>
         <UButton 
           @click="toggleDescription"
           :label="isFullDescription ? '閉じる' : 'もっと見る'" 
