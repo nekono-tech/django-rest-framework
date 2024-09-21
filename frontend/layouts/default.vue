@@ -1,25 +1,35 @@
 <template>
-  <div>
-    <header class="bg-gray-800 text-white py-4 px-8">
-      <div class="container mx-auto flex">
+  <div class="min-h-screen flex flex-col text-slate-500 dark:text-slate-400 bg-white dark:bg-slate-900">
+    <header class="py-4 border-b border-slate-900/10 dark:border-slate-300/10">
+      <UContainer>
         <div class="flex items-center space-x-4">
-          <a href="/" class="flex items-center">nijisearch</a>
-          <a href="/about" class="text-white hover:text-gray-300">
+          <ULink 
+            to="/"
+            active-class="text-primary"
+            class="hover:text-primary hover:dark:text-primary"
+          >
+            nijisearch
+          </ULink>
+          <ULink 
+            to="/about"
+            active-class="text-primary"
+            class="hover:text-primary hover:dark:text-primary"
+          >
             About
-          </a>
+          </ULink>
         </div>
-      </div>
+      </UContainer>
     </header>
-    <main>
+    <main class="py-4 flex-grow">
       <slot/>
     </main>
-    <footer class="bg-gray-800 text-white py-4">
-      <div class="container mx-auto text-center">
+    <footer class="py-12 border-t border-slate-900/10 dark:border-slate-300/10">
+      <UContainer class="mx-auto text-center">
         <p class="text-sm">&copy; 2024 nijisearch</p>
         <p class="text-xs mt-2">
           本サイトは有志による二次創作であり、株式会社ANYCOLOR様には一切の関係がありません。
         </p>
-      </div>
+      </UContainer>
     </footer>
   </div>
 </template>
