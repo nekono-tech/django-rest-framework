@@ -130,10 +130,12 @@ const fetchVideos = async (page = 1) => {
   isLoading.value = false
 
   // TODO: スクロールさせるかはユーザーに選択させるようにしたい
-  window.scrollTo({
-    top: 0,
-    behavior: 'smooth'
-  })
+  if (import.meta.client) {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    })
+  }
 }
 
 const searchVideos = () => {
