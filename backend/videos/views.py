@@ -13,7 +13,7 @@ class CustomPageNumberPagination(PageNumberPagination):
 
 class IndexView(APIView):
     def get(self, request):
-        query = request.query_params.get('search', None)
+        query = request.query_params.get('q', None)
         order = request.query_params.get('order', 'desc')
         livers = request.query_params.get('livers', None)
         videos = Video.objects.all()

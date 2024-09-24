@@ -12,7 +12,7 @@
         <UInput
           icon="i-heroicons-magnifying-glass-20-solid"
           class="flex-grow"
-          v-model="model.search"
+          v-model="model.q"
           color="primary"
           variant="outline"
           placeholder="動画を検索..."
@@ -101,7 +101,7 @@ const pageItems = ref([])
 const model = ref({
   page: parseInt(route.query.page) || 1,
   page_size: parseInt(route.query.page_size) || 16,
-  search: route.query.search || '',
+  q: route.query.q || '',
   order: route.query.order || 'desc',
   livers: []
 })
@@ -199,7 +199,7 @@ watch(
     model.value = {
       page: parseInt(newQuery.page) || 1,
       page_size: parseInt(newQuery.page_size) || 16,
-      search: newQuery.search || '',
+      q: newQuery.q || '',
       order: newQuery.order || 'desc',
       livers: newQuery.livers ? newQuery.livers.split(',').map(id => parseInt(id)) : []
     }
