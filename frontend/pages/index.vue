@@ -1,5 +1,5 @@
 <template>
-  <div class="container mx-auto py-2 px-1">
+  <div class="container mx-auto py-2 px-6 sm:px-2">
     <UProgress v-if="isLoading" animation="carousel" class="fixed top-0 left-0"/>
 
     <div class="mb-4 mt-4 flex flex-col items-center space-y-4">
