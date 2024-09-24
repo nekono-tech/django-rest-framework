@@ -65,6 +65,10 @@
       </UAccordion>
     </div>
 
+    <div class="mb-4">
+      {{ displayedRange }} / {{ videos.count }} 件 を表示
+    </div>
+
     <VideoCards :videos="videos.results"/>
 
     <UPagination 
@@ -182,6 +186,12 @@ selectedLivers.value = route.query.livers
       return liver || { label: '', value: parseInt(id) }
     })
   : []
+
+const displayedRange = computed(() => {
+  const start = (model.value.page - 1) * model.value.page_size + 1;
+  const end = Math.min(model.value.page * model.value.page_size, videos.value.count);
+  return `${start} ~ ${end}件`;
+});
 
 watch(
   () => route.query,
