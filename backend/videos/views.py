@@ -16,6 +16,7 @@ class IndexView(APIView):
         query = request.query_params.get('q', None)
         order = request.query_params.get('order', 'desc')
         livers = request.query_params.get('livers', None)
+        pattern = request.query_params.get('pattern', None)
         videos = Video.objects.all()
 
         if query:
@@ -26,12 +27,27 @@ class IndexView(APIView):
             query = query.replace('　', ' ')
             query = query.split(' ')
 
-            # クエリに含まれる単語を含む動画を取得
-            for q in query:
-                videos = videos.filter(
-                    Q(title__icontains=q) | Q(description__icontains=q) | Q(youtube__liver__name__icontains=q)
-                )
+            if pattern:
+                # フィルタクエリを初期化
+                filter_queries = Q()
 
+                # patterns の各値に対応するフィルタリングを実行
+                for q in query:
+                    # patterns=1 でタイトルに絞り込み
+                    if '1' in pattern.split(','):
+                        filter_queries |= Q(title__icontains=q)
+
+                    # patterns=2 で概要に絞り込み
+                    if '2' in pattern.split(','):
+                        filter_queries |= Q(description__icontains=q)
+
+                    # patterns=3 でライバー名に絞り込み
+                    if '3' in pattern.split(','):
+                        filter_queries |= Q(youtube__liver__name__icontains=q)
+
+                # フィルタクエリがある場合のみ動画リストに適用
+                if filter_queries:
+                    videos = videos.filter(filter_queries)
         if order == 'asc':
             videos = videos.order_by('published_at')
         else:

@@ -27,6 +27,14 @@
 
       <UAccordion :items="[{ label: '検索フィルター', slot: 'filter' }]" class="w-full max-w-xl">
         <template #filter>
+          <div class="flex flex-col pb-4">
+            <label for="choosePattern" class="mb-1">キーワードの検索対象</label>
+            <div class="flex gap-4">
+              <UCheckbox v-model="selectedPatterns" :value="1" label="動画タイトル" />
+              <UCheckbox v-model="selectedPatterns" :value="2" label="動画概要" />
+              <UCheckbox v-model="selectedPatterns" :value="3" label="ライバー名" />
+            </div>
+          </div>
           <div class="flex flex-col md:flex-row gap-4">
             <div class="flex flex-col">
               <label for="sortOrder" class="mb-1">日付で並び替え</label>
@@ -106,6 +114,7 @@ const model = ref({
   livers: []
 })
 
+const selectedPatterns = ref([]);
 const selectedLivers = ref([])
 
 const filterPublishedDate = [{
@@ -127,7 +136,8 @@ const navigateWithQuery = () => {
   navigateTo({
     query: {
       ...model.value,
-      livers: joinLivers
+      livers: joinLivers,
+      pattern: selectedPatterns.value.join(','),
     }
   })
 }
@@ -137,7 +147,8 @@ const fetchVideos = async () => {
 
   const queryParams = {
     ...model.value,
-    livers: model.value.livers.join(',')
+    livers: model.value.livers.join(','),
+    pattern: selectedPatterns.value.join(','),
   }
 
   videos.value = await $api.get('videos/', { params: queryParams })
@@ -209,6 +220,8 @@ watch(
           return liver || { label: '', value: parseInt(id) }
         })
       : []
+
+    selectedPatterns.value = newQuery.pattern ? newQuery.pattern.split(',').map(Number) : [1, 2, 3];
     fetchVideos(model.value.page)
   },
   { immediate: true }
