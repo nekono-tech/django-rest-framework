@@ -1,5 +1,5 @@
 <template>
-  <div class="container mx-auto py-2 px-1">
+  <div class="container mx-auto py-2 px-6 sm:px-2">
     <UProgress v-if="isLoading" animation="carousel" class="fixed top-0 left-0"/>
 
     <div class="mb-4 mt-4 flex flex-col items-center space-y-4">
@@ -12,7 +12,7 @@
         <UInput
           icon="i-heroicons-magnifying-glass-20-solid"
           class="flex-grow"
-          v-model="model.search"
+          v-model="model.q"
           color="primary"
           variant="outline"
           placeholder="動画を検索..."
@@ -27,6 +27,14 @@
 
       <UAccordion :items="[{ label: '検索フィルター', slot: 'filter' }]" class="w-full max-w-xl">
         <template #filter>
+          <div class="flex flex-col pb-4">
+            <label for="choosePattern" class="mb-1">キーワードの検索対象</label>
+            <div class="flex gap-4">
+              <UCheckbox v-model="selectedPatterns" :value="1" label="動画タイトル" />
+              <UCheckbox v-model="selectedPatterns" :value="2" label="動画概要" />
+              <UCheckbox v-model="selectedPatterns" :value="3" label="ライバー名" />
+            </div>
+          </div>
           <div class="flex flex-col md:flex-row gap-4">
             <div class="flex flex-col">
               <label for="sortOrder" class="mb-1">日付で並び替え</label>
@@ -65,6 +73,10 @@
       </UAccordion>
     </div>
 
+    <div class="mb-4">
+      {{ displayedRange }} / {{ videos.count }} 件 を表示
+    </div>
+
     <VideoCards :videos="videos.results"/>
 
     <UPagination 
@@ -97,11 +109,12 @@ const pageItems = ref([])
 const model = ref({
   page: parseInt(route.query.page) || 1,
   page_size: parseInt(route.query.page_size) || 16,
-  search: route.query.search || '',
+  q: route.query.q || '',
   order: route.query.order || 'desc',
   livers: []
 })
 
+const selectedPatterns = ref([]);
 const selectedLivers = ref([])
 
 const filterPublishedDate = [{
@@ -123,7 +136,8 @@ const navigateWithQuery = () => {
   navigateTo({
     query: {
       ...model.value,
-      livers: joinLivers
+      livers: joinLivers,
+      pattern: selectedPatterns.value.join(','),
     }
   })
 }
@@ -133,7 +147,8 @@ const fetchVideos = async () => {
 
   const queryParams = {
     ...model.value,
-    livers: model.value.livers.join(',')
+    livers: model.value.livers.join(','),
+    pattern: selectedPatterns.value.join(','),
   }
 
   videos.value = await $api.get('videos/', { params: queryParams })
@@ -183,13 +198,19 @@ selectedLivers.value = route.query.livers
     })
   : []
 
+const displayedRange = computed(() => {
+  const start = (model.value.page - 1) * model.value.page_size + 1;
+  const end = Math.min(model.value.page * model.value.page_size, videos.value.count);
+  return `${start} ~ ${end}件`;
+});
+
 watch(
   () => route.query,
   (newQuery) => {
     model.value = {
       page: parseInt(newQuery.page) || 1,
       page_size: parseInt(newQuery.page_size) || 16,
-      search: newQuery.search || '',
+      q: newQuery.q || '',
       order: newQuery.order || 'desc',
       livers: newQuery.livers ? newQuery.livers.split(',').map(id => parseInt(id)) : []
     }
@@ -199,6 +220,8 @@ watch(
           return liver || { label: '', value: parseInt(id) }
         })
       : []
+
+    selectedPatterns.value = newQuery.pattern ? newQuery.pattern.split(',').map(Number) : [1, 2, 3];
     fetchVideos(model.value.page)
   },
   { immediate: true }
